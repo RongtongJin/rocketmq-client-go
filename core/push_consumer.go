@@ -77,11 +77,11 @@ func newPushConsumer(config *PushConsumerConfig) (PushConsumer, error) {
 		return nil, errors.New("config is nil")
 	}
 	if config.GroupID == "" {
-		return nil, errors.New("GroupId is empty.")
+		return nil, errors.New("GroupId is empty")
 	}
 
 	if config.NameServer == "" && config.NameServerDomain == "" {
-		return nil, errors.New("NameServer and NameServerDomain is empty.")
+		return nil, errors.New("NameServer and NameServerDomain is empty")
 	}
 
 	consumer := &defaultPushConsumer{config: config}
@@ -90,7 +90,7 @@ func newPushConsumer(config *PushConsumerConfig) (PushConsumer, error) {
 	C.free(unsafe.Pointer(cs))
 
 	if cconsumer == nil {
-		return nil, errors.New("Create PushConsumer failed")
+		return nil, errors.New("create PushConsumer failed")
 	}
 
 	var err rmqError
@@ -224,9 +224,8 @@ func (c *defaultPushConsumer) Shutdown() error {
 }
 
 func (c *defaultPushConsumer) Subscribe(topic, expression string, consumeFunc func(msg *MessageExt) ConsumeStatus) error {
-	_, exist := c.funcsMap.Load(topic)
-	if exist {
-		return nil
+	if consumeFunc == nil {
+		return errors.New("consumeFunc is nil")
 	}
 	err := rmqError(C.Subscribe(c.cconsumer, C.CString(topic), C.CString(expression)))
 	if err != NIL {
