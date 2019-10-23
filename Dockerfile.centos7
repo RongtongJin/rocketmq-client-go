@@ -1,0 +1,26 @@
+FROM centos:7
+
+RUN yum -y update && yum clean all
+
+RUN mkdir -p /go/src/github.com/apache/rocketmq-client-go && chmod -R 777 /go && \
+    yum install -y centos-release-scl && \
+    yum -y install git go-toolset-7-golang && \
+    yum install -y openssl-devel && yum clean all
+
+ENV GOPATH=/go \
+    BASH_ENV=/opt/rh/go-toolset-7/enable \
+    ENV=/opt/rh/go-toolset-7/enable \
+    PROMPT_COMMAND=". /opt/rh/go-toolset-7/enable" \
+    PATH="/opt/rh/go-toolset-7/root/usr/lib/go-toolset-7-golang/bin/:${PATH}"
+
+RUN rpm -ivh https://ons-client-sdk.oss-cn-hangzhou.aliyuncs.com/cpp-rpm/RHEL7/cgo/t-rocketmq-2.0.0-centos7.x86_64.rpm && \
+    git clone https://github.com/golang/sys.git /go/src/golang.org/x/sys && \
+    git clone https://github.com/sirupsen/logrus.git /go/src/github.com/sirupsen/logrus && \
+    go get github.com/stretchr/testify && \
+    go get -u github.com/jstemmer/go-junit-report
+
+COPY . /go/src/github.com/apache/rocketmq-client-go
+
+WORKDIR /go/src/github.com/apache/rocketmq-client-go
+
+#ENTRYPOINT ["go","test","test/producer_test.go","test/util.go"]

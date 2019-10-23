@@ -1,0 +1,31 @@
+FROM centos:6
+
+ARG go_ver="1.13"
+
+RUN mkdir -p /go/src/github.com/apache/rocketmq-client-go && chmod -R 777 /go && \
+    yum install -y centos-release-scl && \
+    yum install -y git && \
+    yum install -y openssl-devel && yum clean all
+
+RUN curl -O https://storage.googleapis.com/golang/go${go_ver}.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go${go_ver}.linux-amd64.tar.gz && \
+    rm go${go_ver}.linux-amd64.tar.gz
+
+ENV GOPATH=/go \
+    PATH="/usr/local/go/bin:${PATH}"
+
+RUN rpm -ivh https://ons-client-sdk.oss-cn-hangzhou.aliyuncs.com/cpp-rpm/RHEL6/cgo/t-rocketmq-2.0.0-centos6.x86_64.rpm && \
+    curl -Lks http://www.hop5.in/yum/el6/hop5.repo > /etc/yum.repos.d/hop5.repo && \
+    yum install gcc gcc-g++ -y && \
+    yum -y update && yum clean all && \
+    git clone https://github.com/golang/sys.git /go/src/golang.org/x/sys && \
+    git clone https://github.com/sirupsen/logrus.git /go/src/github.com/sirupsen/logrus && \
+    go get github.com/stretchr/testify && \
+    go get -u github.com/jstemmer/go-junit-report
+
+
+COPY . /go/src/github.com/apache/rocketmq-client-go
+
+WORKDIR /go/src/github.com/apache/rocketmq-client-go
+
+#ENTRYPOINT ["go","test","test/producer_test.go","test/util.go"]
