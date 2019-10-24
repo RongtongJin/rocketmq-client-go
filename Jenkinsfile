@@ -12,7 +12,7 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile.centos6'
-                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv 67fa590cfc'
+                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv'
                 }
             }
             steps {
@@ -25,7 +25,7 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile.centos7'
-                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv 67fa590cfc'
+                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv'
                 }
             }
             steps {
