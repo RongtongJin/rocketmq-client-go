@@ -92,7 +92,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 	fmt.Printf("send end\n")
 	t.Logf("send end")
 
-	waitTimeout(&wg, 100*time.Second)
+	waitTimeout(&wg, 40*time.Second)
 
 	if flagA && flagB && flagC {
 		t.Logf("broadcast test success")
