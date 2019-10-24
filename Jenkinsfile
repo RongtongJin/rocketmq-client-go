@@ -34,13 +34,13 @@ pipeline {
                 junit '*.xml'
             }
         }
-        post {
-            always {
-                sh 'docker stop  `docker ps -aq --filter name=rmqbroker`'
-                sh 'docker rm  `docker ps -aq --filter name=rmqbroker`'
-                sh 'docker stop  `docker ps -aq --filter name=rmqnamesrv`'
-                sh 'docker rm  `docker ps -aq --filter name=rmqnamesrv`'
-            }
+    }
+    post {
+        always {
+            sh 'docker stop  `docker ps -aq --filter name=rmqbroker`'
+            sh 'docker rm  `docker ps -aq --filter name=rmqbroker`'
+            sh 'docker stop  `docker ps -aq --filter name=rmqnamesrv`'
+            sh 'docker rm  `docker ps -aq --filter name=rmqnamesrv`'
         }
     }
 }
