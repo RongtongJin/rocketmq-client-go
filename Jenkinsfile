@@ -16,7 +16,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./... 2>&1 > tmp'
+                sh 'go test -v ./core ./test 2>&1 > tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
             }
@@ -29,7 +29,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./... 2>&1 > tmp'
+                sh 'go test -v ./core ./test 2>&1 > tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
             }
