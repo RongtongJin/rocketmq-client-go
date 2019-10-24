@@ -6,11 +6,11 @@ pipeline {
                 sh 'docker run -d --name rmqnamesrv rocketmqinc/rocketmq:4.5.0 sh mqnamesrv'
                 sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" rocketmqinc/rocketmq:4.5.0  sh mqbroker'
                 sh 'sleep 10'
-                sh 'docker exec -it rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t broadcastTest'
-                sh 'docker exec -it rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendAndReceive'
-                sh 'docker exec -it rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendOnewayAndReceive'
-                sh 'docker exec -it rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t rebalance'
-                sh 'docker exec -it rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t tagTest'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t broadcastTest'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendAndReceive'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendOnewayAndReceive'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t rebalance'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t tagTest'
             }
         }
         stage('CentOS 6'){
