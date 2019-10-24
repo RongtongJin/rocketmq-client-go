@@ -19,6 +19,7 @@ func TestRocketMQTagFilter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if res.Status != rocketmq.SendOK {
 		t.Fatalf("send message fail")
 	}
