@@ -76,7 +76,6 @@ func TestRocketMQBroadcast(t *testing.T) {
 	}
 	defer producer.Shutdown()
 
-	t.Logf("send start")
 	for i := 0; i < 10; i++ {
 		msg := fmt.Sprintf("test-%d", i)
 		res, err := producer.SendMessageSync(&rocketmq.Message{Topic: "broadcastTest", Body: msg})
