@@ -3,6 +3,7 @@ package test
 import (
 	rocketmq "github.com/apache/rocketmq-client-go/core"
 	"testing"
+	"time"
 )
 
 func TestRocketMQTagFilter(t *testing.T) {
@@ -47,7 +48,10 @@ func TestRocketMQTagFilter(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer consumer.Shutdown()
-	<-ch
+	select {
+	case <-time.After(time.Second * 40):
+	case <-ch:
+	}
 	if flag {
 		t.Logf("tag filter test success")
 	} else {

@@ -70,7 +70,10 @@ func TestRocketMQRebalance(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer consumerC.Shutdown()
-	<-ch
+	select {
+	case <-time.After(time.Second * 40):
+	case <-ch:
+	}
 	time.Sleep(time.Duration(10) * time.Second)
 	if !checkMap(receiveMap) {
 		t.Errorf("rebalance test fail")

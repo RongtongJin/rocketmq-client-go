@@ -6,6 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 //FIXME
@@ -91,11 +92,24 @@ func TestRocketMQBroadcast(t *testing.T) {
 	}
 	fmt.Printf("send end\n")
 	t.Logf("send end")
-
-	wg.Wait()
+	waitTimeout(&wg, 40*time.Second)
 	if flagA && flagB && flagC {
 		t.Logf("broadcast test success")
 	} else {
 		t.Errorf("broadcast test fail")
+	}
+}
+
+func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
+	c := make(chan struct{})
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+	select {
+	case <-c:
+		return false // completed normally
+	case <-time.After(timeout):
+		return true // timed out
 	}
 }

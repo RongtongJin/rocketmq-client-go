@@ -3,6 +3,7 @@ package test
 import (
 	rocketmq "github.com/apache/rocketmq-client-go/core"
 	"testing"
+	"time"
 )
 
 func TestRocketMQSendSyncAndReceive(t *testing.T) {
@@ -35,7 +36,10 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer consumer.Shutdown()
-	<-ch
+	select {
+	case <-time.After(time.Second * 40):
+	case <-ch:
+	}
 	if !flag {
 		t.Errorf("send sync and receive test fail")
 	}
