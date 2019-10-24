@@ -1,10 +1,12 @@
 pipeline {
-    agent none
+    agent any
     stages {
         stage('rocketmq-cluster start'){
-            sh 'docker run -d --name rmqnamesrv rocketmqinc/rocketmq:4.5.0 sh mqnamesrv'
-            sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" rocketmqinc/rocketmq:4.5.0  sh mqbroker'
-            sh 'sleep 10'
+            steps {
+                sh 'docker run -d --name rmqnamesrv rocketmqinc/rocketmq:4.5.0 sh mqnamesrv'
+                sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" rocketmqinc/rocketmq:4.5.0  sh mqbroker'
+                sh 'sleep 10'
+            }
         }
         stage('CentOS 6'){
             agent {
