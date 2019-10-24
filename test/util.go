@@ -49,23 +49,6 @@ func createTagMessage(topic, body, tag string) *rocketmq.Message {
 	return &rocketmq.Message{Topic: topic, Body: msg, Tags: tag}
 }
 
-func createONSProducer() rocketmq.Producer {
-	pConfig := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-		},
-		ProducerModel: rocketmq.CommonProducer,
-	}
-	producer, _ := rocketmq.NewProducer(pConfig)
-	return producer
-}
-
 func createRocketMQProducer() rocketmq.Producer {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
@@ -80,24 +63,6 @@ func createRocketMQProducer() rocketmq.Producer {
 	return producer
 }
 
-func createONSPushConsumer() rocketmq.PushConsumer {
-	pConfig := &rocketmq.PushConsumerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-		},
-		Model:         rocketmq.Clustering,
-		ConsumerModel: rocketmq.CoCurrently,
-	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
-}
-
 func createRocketMQPushConsumer() rocketmq.PushConsumer {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
@@ -105,25 +70,6 @@ func createRocketMQPushConsumer() rocketmq.PushConsumer {
 			NameServer: rocketmqNameserver,
 		},
 		Model:         rocketmq.Clustering,
-		ConsumerModel: rocketmq.CoCurrently,
-	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
-}
-
-func createONSBroadcastConsumerByInstanceName(instanceName string) rocketmq.PushConsumer {
-	pConfig := &rocketmq.PushConsumerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-			InstanceName: instanceName,
-		},
-		Model:         rocketmq.BroadCasting,
 		ConsumerModel: rocketmq.CoCurrently,
 	}
 	consumer, _ := rocketmq.NewPushConsumer(pConfig)
@@ -144,25 +90,6 @@ func createRocketMQBroadcastConsumerByInstanceName(instanceName string) rocketmq
 	return consumer
 }
 
-func createONSPushConsumerByInstanceName(instanceName string) rocketmq.PushConsumer {
-	pConfig := &rocketmq.PushConsumerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-			InstanceName: instanceName,
-		},
-		Model:         rocketmq.Clustering,
-		ConsumerModel: rocketmq.CoCurrently,
-	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
-}
-
 func createRocketMQPushConsumerByInstanceName(instanceName string) rocketmq.PushConsumer {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
@@ -172,76 +99,6 @@ func createRocketMQPushConsumerByInstanceName(instanceName string) rocketmq.Push
 		},
 		Model:         rocketmq.Clustering,
 		ConsumerModel: rocketmq.CoCurrently,
-	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
-}
-
-func createONSPartitionOrderProducer() rocketmq.Producer {
-	pConfig := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsOrderGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-		},
-		ProducerModel: rocketmq.OrderlyProducer,
-	}
-	producer, _ := rocketmq.NewProducer(pConfig)
-	return producer
-}
-
-func createONSPartitionOrderPushConsumer() rocketmq.PushConsumer {
-	pConfig := &rocketmq.PushConsumerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsOrderGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-		},
-		Model:         rocketmq.Clustering,
-		ConsumerModel: rocketmq.Orderly,
-	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
-}
-
-func createONSGlobalOrderProducer() rocketmq.Producer {
-	pConfig := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsGlobalOrderGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-		},
-		ProducerModel: rocketmq.OrderlyProducer,
-	}
-	producer, _ := rocketmq.NewProducer(pConfig)
-	return producer
-}
-
-func createONSGlobalOrderPushConsumer() rocketmq.PushConsumer {
-	pConfig := &rocketmq.PushConsumerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    OnsGlobalOrderGroupId,
-			NameServer: OnsNameserver,
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: AccessKey,
-				SecretKey: SecretKey,
-				Channel:   "ALIYUN",
-			},
-		},
-		Model:         rocketmq.Clustering,
-		ConsumerModel: rocketmq.Orderly,
 	}
 	consumer, _ := rocketmq.NewPushConsumer(pConfig)
 	return consumer
