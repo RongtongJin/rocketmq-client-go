@@ -16,7 +16,9 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./core ./test'
+                sh 'go test -v ./core ./test | tee tmp'
+                sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
+                junit '*.xml'
             }
         }
         stage('CentOS 7'){
@@ -27,7 +29,9 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./core ./test'
+                sh 'go test -v ./core ./test | tee tmp'
+                sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
+                junit '*.xml'
             }
         }
     }

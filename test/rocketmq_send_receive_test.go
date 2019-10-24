@@ -9,6 +9,7 @@ import (
 func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	flag := false
 	ch := make(chan interface{})
+	msgId := ""
 	producer := createRocketMQProducer()
 	err := producer.Start()
 	if err != nil {
@@ -21,11 +22,13 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	}
 	if res.Status != rocketmq.SendOK {
 		t.Fatalf("send message fail")
+	} else {
+		msgId = res.MsgId
 	}
 	consumer := createRocketMQPushConsumer()
 	consumer.Subscribe("sendAndReceive", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
-		if msg.Body == "sendAndReceive" {
+		if msg.MessageID == msgId {
 			flag = true
 		}
 		ch <- "done"
