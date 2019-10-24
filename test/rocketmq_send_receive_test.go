@@ -3,11 +3,13 @@ package test
 import (
 	rocketmq "github.com/apache/rocketmq-client-go/core"
 	"testing"
+	"time"
 )
 
 func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	flag := false
 	ch := make(chan interface{})
+	msgId := ""
 	producer := createRocketMQProducer()
 	err := producer.Start()
 	if err != nil {
@@ -20,11 +22,13 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	}
 	if res.Status != rocketmq.SendOK {
 		t.Fatalf("send message fail")
+	} else {
+		msgId = res.MsgId
 	}
 	consumer := createRocketMQPushConsumer()
 	consumer.Subscribe("sendAndReceive", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
-		if msg.Body == "sendAndReceive" {
+		if msg.MessageID == msgId {
 			flag = true
 		}
 		ch <- "done"
@@ -35,7 +39,10 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer consumer.Shutdown()
-	<-ch
+	select {
+	case <-time.After(time.Second * 40):
+	case <-ch:
+	}
 	if !flag {
 		t.Errorf("send sync and receive test fail")
 	}

@@ -6,9 +6,9 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
-//FIXME
 func TestRocketMQBroadcast(t *testing.T) {
 	wg := sync.WaitGroup{}
 	wg.Add(3)
@@ -22,6 +22,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 	consumerA := createRocketMQBroadcastConsumerByInstanceName("consumerA")
 	consumerB := createRocketMQBroadcastConsumerByInstanceName("consumerB")
 	consumerC := createRocketMQBroadcastConsumerByInstanceName("consumerC")
+
 	consumerA.Subscribe("broadcastTest", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerA receive msg: %s", msg)
 		fmt.Printf("consumerA receive msg: %s\n", msg)
@@ -75,7 +76,6 @@ func TestRocketMQBroadcast(t *testing.T) {
 	}
 	defer producer.Shutdown()
 
-	t.Logf("send start")
 	for i := 0; i < 10; i++ {
 		msg := fmt.Sprintf("test-%d", i)
 		res, err := producer.SendMessageSync(&rocketmq.Message{Topic: "broadcastTest", Body: msg})
@@ -92,10 +92,25 @@ func TestRocketMQBroadcast(t *testing.T) {
 	fmt.Printf("send end\n")
 	t.Logf("send end")
 
-	wg.Wait()
+	waitTimeout(&wg, 40*time.Second)
+
 	if flagA && flagB && flagC {
 		t.Logf("broadcast test success")
 	} else {
 		t.Errorf("broadcast test fail")
+	}
+}
+
+func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
+	c := make(chan struct{})
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+	select {
+	case <-c:
+		return false // completed normally
+	case <-time.After(timeout):
+		return true // timed out
 	}
 }
