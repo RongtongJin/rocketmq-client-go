@@ -56,19 +56,18 @@ func TestPushConsumerConfig_String(t *testing.T) {
 	pcConfig.ThreadCount = 4
 	expect := "PushConsumerConfig=[GroupId: testGroup, NameServer: localhost:9876, " +
 		"InstanceName: testPushConsumer, LogConfig: {Path:/rocketmq/log FileNum:16 FileSize:1048576 Level:Debug}, " +
-		"ThreadCount: 4, MessageBatchMaxSize: 1024, ]"
+		"ThreadCount: 4, ]"
 	assert.Equal(t, expect, pcConfig.String())
 
 	pcConfig.NameServerDomain = "domain1"
 	expect = "PushConsumerConfig=[GroupId: testGroup, NameServer: localhost:9876, NameServerDomain: domain1, InstanceName: testPushConsumer, " +
-		"LogConfig: {Path:/rocketmq/log FileNum:16 FileSize:1048576 Level:Debug}, ThreadCount: 4, MessageBatchMaxSize: 1024, ]"
+		"LogConfig: {Path:/rocketmq/log FileNum:16 FileSize:1048576 Level:Debug}, ThreadCount: 4, ]"
 	assert.Equal(t, expect, pcConfig.String())
 
 	pcConfig.MessageBatchMaxSize = 32
 	pcConfig.Model = Clustering
 	expect = "PushConsumerConfig=[GroupId: testGroup, NameServer: localhost:9876, NameServerDomain: domain1, InstanceName: testPushConsumer, " +
 		"LogConfig: {Path:/rocketmq/log FileNum:16 FileSize:1048576 Level:Debug}, ThreadCount: 4," +
-		" MessageBatchMaxSize: 32, MessageModel: Clustering, ConsumerModel: CoCurrently," +
-		" MaxCacheMessageSize: 1024, MaxCacheMessageSizeInMB: 2048, ]"
+		" MessageBatchMaxSize: 32, MessageModel: Clustering, ]"
 	assert.Equal(t, expect, pcConfig.String())
 }
