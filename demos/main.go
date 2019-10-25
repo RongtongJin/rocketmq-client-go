@@ -15,33 +15,15 @@
  *  limitations under the License.
  */
 
-package rocketmq
+package main
 
-/*
-#cgo LDFLAGS: -L/usr/local/lib -lrocketmq
-
-#include <rocketmq/CMessageExt.h>
-#include <rocketmq/CPushConsumer.h>
-*/
-import "C"
-import (
-	"sync"
-)
-
-var pushConsumerMap sync.Map
-
-//export consumeMessageCallback
-func consumeMessageCallback(cconsumer *C.CPushConsumer, msg *C.CMessageExt) C.int {
-	consumer, exist := pushConsumerMap.Load(cconsumer)
-	if !exist {
-		return C.int(ReConsumeLater)
-	}
-
-	msgExt := cmsgExtToGo(msg)
-	//C.DestroyMessageExt(msg)
-	cfunc, exist := consumer.(*defaultPushConsumer).funcsMap.Load(msgExt.Topic)
-	if !exist {
-		return C.int(ReConsumeLater)
-	}
-	return C.int(cfunc.(func(msg *MessageExt) ConsumeStatus)(msgExt))
+func main() {
+	//run producer
+	main0()
+	//run consumer
+	main1()
+	//run orderly producer
+	main2()
+	//run orderly consumer
+	main3()
 }

@@ -20,10 +20,11 @@ package main
 import (
 	"fmt"
 	"github.com/apache/rocketmq-client-go/core"
+	"time"
 )
 
 // Change to main if you want to run it directly
-func main0() {
+func main4() {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			GroupID:    "GID_XXXXXXXXXXXX",
@@ -34,34 +35,46 @@ func main0() {
 				Channel:   "ALIYUN/OtherChannel",
 			},
 		},
-		//Set to Common Producer as default.
-		ProducerModel: rocketmq.CommonProducer,
+		//Set to Trans Producer as default.
+		ProducerModel: rocketmq.TransProducer,
 	}
-	sendMessage(pConfig)
+	sendTransactionMessage(pConfig)
 }
-func sendMessage(config *rocketmq.ProducerConfig) {
-	producer, err := rocketmq.NewProducer(config)
+
+type MyTransactionLocalListener struct {
+}
+
+func (l *MyTransactionLocalListener) Execute(m *rocketmq.Message, arg interface{}) rocketmq.TransactionStatus {
+	return rocketmq.UnknownTransaction
+}
+func (l *MyTransactionLocalListener) Check(m *rocketmq.MessageExt, arg interface{}) rocketmq.TransactionStatus {
+	return rocketmq.CommitTransaction
+}
+func sendTransactionMessage(config *rocketmq.ProducerConfig) {
+	listener := &MyTransactionLocalListener{}
+	producer, err := rocketmq.NewTransactionProducer(config, listener, listener)
 
 	if err != nil {
-		fmt.Println("create common producer failed, error:", err)
+		fmt.Println("create Transaction producer failed, error:", err)
 		return
 	}
 
 	err = producer.Start()
 	if err != nil {
-		fmt.Println("start common producer error", err)
+		fmt.Println("start Transaction producer error", err)
 		return
 	}
 	defer producer.Shutdown()
 
-	fmt.Printf("Common producer: %s started... \n", producer)
+	fmt.Printf("Transaction producer: %s started... \n", producer)
 	for i := 0; i < 10; i++ {
-		msg := fmt.Sprintf("%s-%d", "Hello,Common MQ Message-", i)
-		result, err := producer.SendMessageSync(&rocketmq.Message{Topic: "YourTopicXXXXXXXX", Body: msg})
+		msg := fmt.Sprintf("%s-%d", "Hello,Transaction MQ Message-", i)
+		result, err := producer.SendMessageTransaction(&rocketmq.Message{Topic: "YourTopicXXXXXXXX", Body: msg}, msg)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
 		fmt.Printf("send message: %s result: %s\n", msg, result)
 	}
-	fmt.Println("shutdown common producer.")
+	time.Sleep(time.Duration(1) * time.Minute)
+	fmt.Println("shutdown Transaction producer.")
 }

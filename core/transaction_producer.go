@@ -25,49 +25,47 @@ package rocketmq
 #include <rocketmq/CMessage.h>
 #include <rocketmq/CProducer.h>
 #include <rocketmq/CSendResult.h>
+#include <rocketmq/CTransactionStatus.h>
 
-int queueSelectorCallback_cgo(int size, CMessage *msg, void *selectorKey) {
-	int queueSelectorCallback(int, void*);
-	return queueSelectorCallback(size, selectorKey);
+extern int localTransactionCheckerCallback(CProducer *producer, CMessageExt *msg,void *userData);
+int transactionChecker_cgo(CProducer *producer, CMessageExt *msg, void *userData) {
+	return localTransactionCheckerCallback(producer, msg, userData);
+}
+
+extern int localTransactionExecutorCallback(CProducer *producer, CMessage *msg,void *userData);
+int transactionExecutor_cgo(CProducer *producer, CMessage *msg, void *userData) {
+	return localTransactionExecutorCallback(producer, msg, userData);
 }
 */
 import "C"
 import (
 	"errors"
 	log "github.com/sirupsen/logrus"
+	"sync"
 	"unsafe"
 )
 
-//SendStatus The Status for send result from C apis.
-type SendStatus int
+type TransactionStatus int
 
 const (
-	//SendOK OK
-	SendOK = SendStatus(C.E_SEND_OK)
-	//SendFlushDiskTimeout Failed because broker flush error
-	SendFlushDiskTimeout = SendStatus(C.E_SEND_FLUSH_DISK_TIMEOUT)
-	//SendFlushSlaveTimeout Failed because slave broker timeout
-	SendFlushSlaveTimeout = SendStatus(C.E_SEND_FLUSH_SLAVE_TIMEOUT)
-	//SendSlaveNotAvailable Failed because slave broker error
-	SendSlaveNotAvailable = SendStatus(C.E_SEND_SLAVE_NOT_AVAILABLE)
+	CommitTransaction   = TransactionStatus(C.E_COMMIT_TRANSACTION)
+	RollbackTransaction = TransactionStatus(C.E_ROLLBACK_TRANSACTION)
+	UnknownTransaction  = TransactionStatus(C.E_UNKNOWN_TRANSACTION)
 )
 
-func (status SendStatus) String() string {
+func (status TransactionStatus) String() string {
 	switch status {
-	case SendOK:
-		return "SendOK"
-	case SendFlushDiskTimeout:
-		return "SendFlushDiskTimeout"
-	case SendFlushSlaveTimeout:
-		return "SendFlushSlaveTimeout"
-	case SendSlaveNotAvailable:
-		return "SendSlaveNotAvailable"
+	case CommitTransaction:
+		return "CommitTransaction"
+	case RollbackTransaction:
+		return "RollbackTransaction"
+	case UnknownTransaction:
+		return "UnknownTransaction"
 	default:
-		return "Unknown"
+		return "UnknownTransaction"
 	}
 }
-
-func newDefaultProducer(config *ProducerConfig) (*defaultProducer, error) {
+func newDefaultTransactionProducer(config *ProducerConfig, listener TransactionLocalListener, arg interface{}) (*defaultTransactionProducer, error) {
 	if config == nil {
 		return nil, errors.New("config is nil")
 	}
@@ -80,18 +78,16 @@ func newDefaultProducer(config *ProducerConfig) (*defaultProducer, error) {
 		return nil, errors.New("NameServer and NameServerDomain is empty")
 	}
 
-	producer := &defaultProducer{config: config}
+	producer := &defaultTransactionProducer{config: config}
 	cs := C.CString(config.GroupID)
 	var cproduer *C.struct_CProducer
-	if config.ProducerModel == OrderlyProducer {
-		cproduer = C.CreateOrderlyProducer(cs)
-	} else {
-		cproduer = C.CreateProducer(cs)
-	}
+
+	cproduer = C.CreateTransactionProducer(cs, (C.CLocalTransactionCheckerCallback)(unsafe.Pointer(C.transactionChecker_cgo)), unsafe.Pointer(&arg))
+
 	C.free(unsafe.Pointer(cs))
 
 	if cproduer == nil {
-		return nil, errors.New("create Producer failed")
+		return nil, errors.New("create transaction Producer failed")
 	}
 
 	var err rmqError
@@ -177,20 +173,23 @@ func newDefaultProducer(config *ProducerConfig) (*defaultProducer, error) {
 	}
 
 	producer.cproduer = cproduer
+	transactionProducerMap.Store(cproduer, producer)
+	producer.listenerFuncsMap.Store(cproduer, listener)
 	return producer, nil
 }
 
-type defaultProducer struct {
-	config   *ProducerConfig
-	cproduer *C.struct_CProducer
+type defaultTransactionProducer struct {
+	config           *ProducerConfig
+	cproduer         *C.struct_CProducer
+	listenerFuncsMap sync.Map
 }
 
-func (p *defaultProducer) String() string {
+func (p *defaultTransactionProducer) String() string {
 	return p.config.String()
 }
 
 // Start the producer.
-func (p *defaultProducer) Start() error {
+func (p *defaultTransactionProducer) Start() error {
 	err := rmqError(C.StartProducer(p.cproduer))
 	if err != NIL {
 		return err
@@ -199,7 +198,7 @@ func (p *defaultProducer) Start() error {
 }
 
 // Shutdown the producer.
-func (p *defaultProducer) Shutdown() error {
+func (p *defaultTransactionProducer) Shutdown() error {
 	err := rmqError(C.ShutdownProducer(p.cproduer))
 
 	if err != NIL {
@@ -214,13 +213,12 @@ func (p *defaultProducer) Shutdown() error {
 	return err
 }
 
-func (p *defaultProducer) SendMessageSync(msg *Message) (*SendResult, error) {
+func (p *defaultTransactionProducer) SendMessageTransaction(msg *Message, arg interface{}) (*SendResult, error) {
 	cmsg := goMsgToC(msg)
 	defer C.DestroyMessage(cmsg)
 
 	var sr C.struct__SendResult_
-	err := rmqError(C.SendMessageSync(p.cproduer, cmsg, &sr))
-
+	err := rmqError(C.SendMessageTransaction(p.cproduer, cmsg, (C.CLocalTransactionExecutorCallback)(unsafe.Pointer(C.transactionExecutor_cgo)), unsafe.Pointer(&arg), &sr))
 	if err != NIL {
 		log.Warnf("send message error, error is: %s", err.Error())
 		return nil, err
@@ -231,76 +229,4 @@ func (p *defaultProducer) SendMessageSync(msg *Message) (*SendResult, error) {
 	result.MsgId = C.GoString(&sr.msgId[0])
 	result.Offset = int64(sr.offset)
 	return result, nil
-}
-
-func (p *defaultProducer) SendMessageOrderly(msg *Message, selector MessageQueueSelector, arg interface{}, autoRetryTimes int) (*SendResult, error) {
-	if p.config.ProducerModel == OrderlyProducer {
-		log.Warnf("Can not send message orderly by common select queue in lite order producer")
-		return nil, ErrSendOrderlyFailed
-	}
-	cmsg := goMsgToC(msg)
-	defer C.DestroyMessage(cmsg)
-	key := selectors.put(&messageQueueSelectorWrapper{selector: selector, m: msg, arg: arg})
-
-	var sr C.struct__SendResult_
-	err := rmqError(C.SendMessageOrderly(
-		p.cproduer,
-		cmsg,
-		(C.QueueSelectorCallback)(unsafe.Pointer(C.queueSelectorCallback_cgo)),
-		unsafe.Pointer(&key),
-		C.int(autoRetryTimes),
-		&sr))
-
-	if err != NIL {
-		log.Warnf("send message orderly error, error is: %s", err.Error())
-		return nil, err
-	}
-
-	return &SendResult{
-		Status: SendStatus(sr.sendStatus),
-		MsgId:  C.GoString(&sr.msgId[0]),
-		Offset: int64(sr.offset),
-	}, nil
-}
-
-func (p *defaultProducer) SendMessageOneway(msg *Message) error {
-	cmsg := goMsgToC(msg)
-	defer C.DestroyMessage(cmsg)
-
-	err := rmqError(C.SendMessageOneway(p.cproduer, cmsg))
-	if err != NIL {
-		log.Warnf("send message with oneway error, error is: %s", err.Error())
-		return err
-	}
-
-	log.Debugf("Send Message: %s with oneway success.", msg.String())
-	return nil
-}
-
-func (p *defaultProducer) SendMessageOrderlyByShardingKey(msg *Message, shardingkey string) (*SendResult, error) {
-	if p.config.ProducerModel != OrderlyProducer {
-		log.Warnf("Can not send message orderly, This method only support in lite order producer.")
-		return nil, ErrSendOrderlyFailed
-	}
-	cmsg := goMsgToC(msg)
-	defer C.DestroyMessage(cmsg)
-	cshardingkey := C.CString(shardingkey)
-	defer C.free(unsafe.Pointer(cshardingkey))
-	var sr C.struct__SendResult_
-	err := rmqError(C.SendMessageOrderlyByShardingKey(
-		p.cproduer,
-		cmsg,
-		cshardingkey,
-		&sr))
-
-	if err != NIL {
-		log.Warnf("send message orderly error, error is: %s", err.Error())
-		return nil, err
-	}
-
-	return &SendResult{
-		Status: SendStatus(sr.sendStatus),
-		MsgId:  C.GoString(&sr.msgId[0]),
-		Offset: int64(sr.offset),
-	}, nil
 }

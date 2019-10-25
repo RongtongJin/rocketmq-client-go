@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package rocketmq
 
 /*
@@ -39,10 +40,13 @@ import (
 	"unsafe"
 )
 
+//ConsumeStatus the retern value for consumer
 type ConsumeStatus int
 
 const (
+	//ConsumeSuccess commit offset to broker
 	ConsumeSuccess = ConsumeStatus(C.E_CONSUME_SUCCESS)
+	//ReConsumeLater it will be send back to broker
 	ReConsumeLater = ConsumeStatus(C.E_RECONSUME_LATER)
 )
 
@@ -162,6 +166,20 @@ func newPushConsumer(config *PushConsumerConfig) (PushConsumer, error) {
 
 	if config.MessageBatchMaxSize > 0 {
 		err = rmqError(C.SetPushConsumerMessageBatchMaxSize(cconsumer, C.int(config.MessageBatchMaxSize)))
+		if err != NIL {
+			return nil, err
+		}
+	}
+
+	if config.MaxCacheMessageSize > 0 {
+		err = rmqError(C.SetPushConsumerMaxCacheMessageSize(cconsumer, C.int(config.MaxCacheMessageSize)))
+		if err != NIL {
+			return nil, err
+		}
+	}
+
+	if config.MaxCacheMessageSizeInMB > 0 {
+		err = rmqError(C.SetPushConsumerMaxCacheMessageSizeInMb(cconsumer, C.int(config.MaxCacheMessageSizeInMB)))
 		if err != NIL {
 			return nil, err
 		}

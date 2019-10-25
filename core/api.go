@@ -14,14 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package rocketmq
 
 import "fmt"
 
+//Version get go sdk version
 func Version() (version string) {
 	return GetVersion()
 }
 
+//ClientConfig save client config
 type ClientConfig struct {
 	GroupID          string
 	NameServer       string
@@ -46,11 +49,14 @@ func (config *ClientConfig) String() string {
 	return str
 }
 
+//ProducerModel Common or orderly
 type ProducerModel int
 
+//Different models
 const (
 	CommonProducer  = ProducerModel(1)
 	OrderlyProducer = ProducerModel(2)
+	TransProducer   = ProducerModel(3)
 )
 
 func (mode ProducerModel) String() string {
@@ -59,6 +65,8 @@ func (mode ProducerModel) String() string {
 		return "CommonProducer"
 	case OrderlyProducer:
 		return "OrderlyProducer"
+	case TransProducer:
+		return "TransProducer"
 	default:
 		return "Unknown"
 	}
@@ -96,6 +104,7 @@ func (config *ProducerConfig) String() string {
 	return str + "]"
 }
 
+//Producer define interface
 type Producer interface {
 	baseAPI
 	// SendMessageSync send a message with sync
@@ -114,13 +123,32 @@ type Producer interface {
 	SendMessageOrderlyByShardingKey(msg *Message, shardingkey string) (*SendResult, error)
 }
 
+// NewTransactionProducer create a new  trasaction producer with config
+func NewTransactionProducer(config *ProducerConfig, listener TransactionLocalListener, arg interface{}) (TransactionProducer, error) {
+	return newDefaultTransactionProducer(config, listener, arg)
+}
+
+// TransactionExecutor local executor for transaction message
+type TransactionLocalListener interface {
+	Execute(m *Message, arg interface{}) TransactionStatus
+	Check(m *MessageExt, arg interface{}) TransactionStatus
+}
+
+type TransactionProducer interface {
+	baseAPI
+	// send a transaction message with sync
+	SendMessageTransaction(msg *Message, arg interface{}) (*SendResult, error)
+}
+
 // NewPushConsumer create a new consumer with config.
 func NewPushConsumer(config *PushConsumerConfig) (PushConsumer, error) {
 	return newPushConsumer(config)
 }
 
+//MessageModel Clustering or BroadCasting
 type MessageModel int
 
+//MessageModel
 const (
 	BroadCasting = MessageModel(1)
 	Clustering   = MessageModel(2)
@@ -137,8 +165,10 @@ func (mode MessageModel) String() string {
 	}
 }
 
+//ConsumerModel CoCurrently or Orderly
 type ConsumerModel int
 
+//ConsumerModel
 const (
 	CoCurrently = ConsumerModel(1)
 	Orderly     = ConsumerModel(2)
@@ -158,10 +188,12 @@ func (mode ConsumerModel) String() string {
 // PushConsumerConfig define a new consumer.
 type PushConsumerConfig struct {
 	ClientConfig
-	ThreadCount         int
-	MessageBatchMaxSize int
-	Model               MessageModel
-	ConsumerModel       ConsumerModel
+	ThreadCount             int
+	MessageBatchMaxSize     int
+	Model                   MessageModel
+	ConsumerModel           ConsumerModel
+	MaxCacheMessageSize     int
+	MaxCacheMessageSizeInMB int
 }
 
 func (config *PushConsumerConfig) String() string {
@@ -183,9 +215,18 @@ func (config *PushConsumerConfig) String() string {
 	if config.ConsumerModel != 0 {
 		str = strJoin(str, "ConsumerModel", config.ConsumerModel.String())
 	}
+
+	if config.MaxCacheMessageSize != 0 {
+		str = strJoin(str, "MaxCacheMessageSize", config.MaxCacheMessageSize)
+	}
+
+	if config.MaxCacheMessageSizeInMB != 0 {
+		str = strJoin(str, "MaxCacheMessageSizeInMB", config.MaxCacheMessageSizeInMB)
+	}
 	return str + "]"
 }
 
+// PushConsumer apis for PushConsumer
 type PushConsumer interface {
 	baseAPI
 
@@ -213,6 +254,7 @@ type PullConsumer interface {
 	FetchSubscriptionMessageQueues(topic string) []MessageQueue
 }
 
+//SessionCredentials access config for client
 type SessionCredentials struct {
 	AccessKey string
 	SecretKey string
@@ -224,6 +266,7 @@ func (session *SessionCredentials) String() string {
 		session.AccessKey, session.SecretKey, session.Channel)
 }
 
+//SendResult status for send
 type SendResult struct {
 	Status SendStatus
 	MsgId  string

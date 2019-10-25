@@ -24,7 +24,8 @@ import (
 	"sync/atomic"
 )
 
-func main() {
+// Change to main if you want to run it directly
+func main3() {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			GroupID:    "GID_XXXXXXXXXXXX",
@@ -38,9 +39,10 @@ func main() {
 		Model:         rocketmq.Clustering,
 		ConsumerModel: rocketmq.Orderly,
 	}
-	ConsumeWithOrderly(pConfig)
+	consumeWithOrderly(pConfig)
 }
-func ConsumeWithOrderly(config *rocketmq.PushConsumerConfig) {
+
+func consumeWithOrderly(config *rocketmq.PushConsumerConfig) {
 
 	consumer, err := rocketmq.NewPushConsumer(config)
 	if err != nil {
