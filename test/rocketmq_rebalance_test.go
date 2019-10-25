@@ -19,7 +19,7 @@ func TestRocketMQRebalance(t *testing.T) {
 	}
 	defer producer.Shutdown()
 	for i := 0; i < 100; i++ {
-		res, err := producer.SendMessageSync(createMessage("rebalance", MsgBody))
+		res, err := producer.SendMessageSync(createMessage("rebalance", "rebalance"))
 		if err != nil {
 			t.Fatal(err)
 		}

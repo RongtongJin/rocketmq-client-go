@@ -13,12 +13,12 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	producer := createRocketMQProducer()
 	err := producer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
 	res, err := producer.SendMessageSync(createMessage("sendAndReceive", "sendAndReceive"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	if res.Status != rocketmq.SendOK {
 		t.Fatalf("send message fail")
@@ -36,7 +36,7 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	})
 	err = consumer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumer.Shutdown()
 	select {
@@ -76,7 +76,10 @@ func TestRocketMQSendOnewayAndReceive(t *testing.T) {
 	}
 	defer consumer.Shutdown()
 
-	<-ch
+	select {
+	case <-time.After(time.Second * 40):
+	case <-ch:
+	}
 	if !flag {
 		t.Errorf("send sync and receive test fail")
 	}
