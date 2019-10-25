@@ -87,7 +87,7 @@ func TestSendMessageBeforeStart(t *testing.T) {
 	}
 	//send before start
 	if producer != nil {
-		_, err = producer.SendMessageSync(createMessage(Topic, MsgBody))
+		_, err = producer.SendMessageSync(createMessage("Topic", "test"))
 		if err == nil {
 			t.Fail()
 		} else {

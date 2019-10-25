@@ -8,18 +8,6 @@ import (
 )
 
 const (
-	//topic
-	Topic            = "XXXX"
-	OrderTopic       = "XXXX"
-	GlobalOrderTopic = "XXXX"
-	MsgBody          = "test"
-	//config info
-	OnsNameserver         = "XXXX"
-	OnsGroupId            = "XXXX"
-	OnsOrderGroupId       = "XXXX"
-	OnsGlobalOrderGroupId = "XXXX"
-	AccessKey             = "XXXX"
-	SecretKey             = "XXXX"
 	//error info
 	ConfigNilInfo       = "config is nil"
 	GroupIdEmptyInfo    = "GroupId is empty"

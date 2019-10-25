@@ -30,7 +30,6 @@ func (l *MyTransactionLocalListener) Check(m *rocketmq.MessageExt, arg interface
 	if m.Body == "Transaction Message" {
 		flagB = true
 	}
-	ch <- "done"
 	return rocketmq.CommitTransaction
 }
 
@@ -68,6 +67,7 @@ func TestTransactionMsg(t *testing.T) {
 		if msg.Body == "Transaction Message" {
 			flagC = true
 		}
+		ch <- "done"
 		return rocketmq.ConsumeSuccess
 	})
 	err = consumer.Start()
