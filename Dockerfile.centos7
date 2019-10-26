@@ -3,7 +3,6 @@ FROM centos:7
 RUN yum -y update && yum clean all
 
 RUN mkdir -p /go/src/github.com/apache/rocketmq-client-go && chmod -R 777 /go && \
-    mkdir -p /tmp/rocketmq-store && chmod -R 777 /tmp/rocketmq-store && \
     yum install -y centos-release-scl && \
     yum -y install git go-toolset-7-golang && \
     yum install -y openssl-devel && yum clean all
