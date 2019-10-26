@@ -24,16 +24,16 @@ import (
 )
 
 // Change to main if you want to run it directly
-func main4() {
+func main() {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    "GID_XXXXXXXXXXXX",
-			NameServer: "http://XXXXXXXXXXXXXXXXXX:80",
-			Credentials: &rocketmq.SessionCredentials{
-				AccessKey: "Your Access Key",
-				SecretKey: "Your Secret Key",
-				Channel:   "ALIYUN/OtherChannel",
-			},
+			GroupID:    "producer_group",
+			NameServer: "localhost:9876",
+			//Credentials: &rocketmq.SessionCredentials{
+			//	AccessKey: "Your Access Key",
+			//	SecretKey: "Your Secret Key",
+			//	Channel:   "ALIYUN/OtherChannel",
+			//},
 		},
 		//Set to Trans Producer as default.
 		ProducerModel: rocketmq.TransProducer,
@@ -67,9 +67,9 @@ func sendTransactionMessage(config *rocketmq.ProducerConfig) {
 	defer producer.Shutdown()
 
 	fmt.Printf("Transaction producer: %s started... \n", producer)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1; i++ {
 		msg := fmt.Sprintf("%s-%d", "Hello,Transaction MQ Message-", i)
-		result, err := producer.SendMessageTransaction(&rocketmq.Message{Topic: "YourTopicXXXXXXXX", Body: msg}, msg)
+		result, err := producer.SendMessageTransaction(&rocketmq.Message{Topic: "YourTopicXXXXXXXX", Body: msg}, nil)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
