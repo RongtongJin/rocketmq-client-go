@@ -14,6 +14,7 @@ pipeline {
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t transaction-message'
             }
         }
+        
 
         stage('CentOS 6'){
             agent {
