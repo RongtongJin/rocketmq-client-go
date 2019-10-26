@@ -36,8 +36,8 @@ func (l *MyTransactionLocalListener) Check(m *rocketmq.MessageExt, arg interface
 func TestTransactionMsg(t *testing.T) {
 	config := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    "producer_group",
-			NameServer: "localhost:9876",
+			GroupID:    "transcation_group",
+			NameServer: rocketmqNameserver,
 		},
 		ProducerModel: rocketmq.TransProducer,
 	}
