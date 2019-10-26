@@ -1,10 +1,10 @@
 pipeline {
     agent any
     stages {
-        stage('rocketmq-cluster start'){
+        stage('rocketmq cluster start'){
             steps {
                 sh 'docker run -d --name rmqnamesrv rocketmqinc/rocketmq:4.5.0 sh mqnamesrv'
-                sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64/jre" rocketmqinc/rocketmq:4.5.0  sh mqbroker'
+                sh 'docker run -d --name rmqbroker -v /tmp/rocketmq-store:/home/rocketmq/store --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64/jre" rocketmqinc/rocketmq:4.5.0  sh mqbroker'
                 sh 'sleep 10'
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t broadcastTest'
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendAndReceive'
@@ -14,16 +14,17 @@ pipeline {
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t transaction-message'
             }
         }
-        
+
 
         stage('CentOS 6'){
             agent {
                 dockerfile {
                     filename 'Dockerfile.centos6'
-                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv'
+                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv -v /tmp/rocketmq-store:/tmp/rocketmq-store'
                 }
             }
             steps {
+                sh 'rm -rf /tmp/rocketmq-store/*'
                 sh 'go test -v ./core ./test | tee tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
@@ -37,6 +38,7 @@ pipeline {
                 }
             }
             steps {
+                sh 'rm -rf /tmp/rocketmq-store/*'
                 sh 'go test -v ./core ./test | tee tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'

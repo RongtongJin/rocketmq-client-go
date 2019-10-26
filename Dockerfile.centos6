@@ -3,6 +3,7 @@ FROM centos:6
 ARG go_ver="1.13"
 
 RUN mkdir -p /go/src/github.com/apache/rocketmq-client-go && chmod -R 777 /go && \
+    mkdir -p /tmp/rocketmq-store && chmod -R 777 /tmp/rocketmq-store && \
     yum install -y centos-release-scl && \
     yum install -y git && \
     yum install -y openssl-devel && yum clean all
