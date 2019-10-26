@@ -14,8 +14,6 @@ pipeline {
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t transaction-message'
             }
         }
-
-
         stage('CentOS 6'){
             agent {
                 dockerfile {
@@ -33,6 +31,32 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile.centos7'
+                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv'
+                }
+            }
+            steps {
+                sh 'go test -v ./core ./test | tee tmp'
+                sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
+                junit '*.xml'
+            }
+        }
+        stage('Debian'){
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.debian'
+                    args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv'
+                }
+            }
+            steps {
+                sh 'go test -v ./core ./test | tee tmp'
+                sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
+                junit '*.xml'
+            }
+        }
+        stage('Ubuntu'){
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.ubuntu'
                     args '-u root -e "NAMESRV_ADDR=namesrv:9876" --link rmqnamesrv:namesrv'
                 }
             }

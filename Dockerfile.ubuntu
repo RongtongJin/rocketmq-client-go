@@ -1,9 +1,20 @@
-FROM golang:1.13-stretch
+FROM ubuntu:18.04
+
+ARG go_ver="1.13"
 
 RUN mkdir -p /go/src/github.com/apache/rocketmq-client-go && chmod -R 777 /go && \
+    apt update && \
+    apt install git gcc g++ wget curl -y && \
     wget https://ons-client-sdk.oss-cn-hangzhou.aliyuncs.com/cpp-rpm/debian/cgo/rocketmq_2.0.0_amd64.deb && \
     dpkg -i rocketmq_2.0.0_amd64.deb && \
-    git clone https://github.com/golang/sys.git /go/src/golang.org/x/sys && \
+    curl -O https://storage.googleapis.com/golang/go${go_ver}.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go${go_ver}.linux-amd64.tar.gz && \
+    rm go${go_ver}.linux-amd64.tar.gz
+
+ENV GOPATH=/go \
+    PATH="/usr/local/go/bin:${PATH}"
+
+RUN git clone https://github.com/golang/sys.git /go/src/golang.org/x/sys && \
     git clone https://github.com/sirupsen/logrus.git /go/src/github.com/sirupsen/logrus && \
     go get github.com/stretchr/testify && \
     go get -u github.com/jstemmer/go-junit-report
