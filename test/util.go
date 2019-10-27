@@ -8,6 +8,16 @@ import (
 )
 
 const (
+	//topic info
+	NormalTopic         = "go_normal_test"
+	OneWayTopic         = "go_oneway_test"
+	RebalanceTopic      = "go_rebalance_test"
+	BroadcastTopic      = "go_broadcast_test"
+	TagFilterTopic      = "go_tag_filter_test"
+	PartitionOrderTopic = "go_partition_order_test"
+	GlobalOrderTopic    = "go_global_order_test"
+	DelayTopic          = "go_delay_test"
+	TransactionTopic    = "go_transaction_test"
 	//error info
 	ConfigNilInfo       = "config is nil"
 	GroupIdEmptyInfo    = "GroupId is empty"
@@ -127,6 +137,56 @@ func createRocketMQTransactionProducer(listener rocketmq.TransactionLocalListene
 	}
 	producer, err := rocketmq.NewTransactionProducer(config, listener, arg)
 	return producer, err
+}
+
+func createRocketMQPartitionOrderProducer() (rocketmq.Producer, error) {
+	pConfig := &rocketmq.ProducerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID:    "OnsGroupId",
+			NameServer: rocketmqNameserver,
+		},
+		ProducerModel: rocketmq.OrderlyProducer,
+	}
+	producer, err := rocketmq.NewProducer(pConfig)
+	return producer, err
+}
+
+func createRocketMQPartitionOrderPushConsumer() (rocketmq.PushConsumer, error) {
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID:    "OnsGroupId",
+			NameServer: rocketmqNameserver,
+		},
+		Model:         rocketmq.Clustering,
+		ConsumerModel: rocketmq.Orderly,
+	}
+	consumer, err := rocketmq.NewPushConsumer(pConfig)
+	return consumer, err
+}
+
+func createRocketMQGlobalOrderProducer() (rocketmq.Producer, error) {
+	pConfig := &rocketmq.ProducerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID:    "OnsGroupId",
+			NameServer: rocketmqNameserver,
+		},
+		ProducerModel: rocketmq.OrderlyProducer,
+	}
+	producer, err := rocketmq.NewProducer(pConfig)
+	return producer, err
+}
+
+func createRocketMQGlobalOrderPushConsumer() (rocketmq.PushConsumer, error) {
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID:    "OnsGroupId",
+			NameServer: rocketmqNameserver,
+		},
+		Model:         rocketmq.Clustering,
+		ConsumerModel: rocketmq.Orderly,
+	}
+	consumer, err := rocketmq.NewPushConsumer(pConfig)
+	return consumer, err
 }
 
 func checkMap(receiveMap sync.Map) bool {

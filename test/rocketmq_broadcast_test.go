@@ -32,7 +32,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	consumerA.Subscribe("broadcastTest", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumerA.Subscribe(BroadcastTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerA receive msg: %s", msg)
 		fmt.Printf("consumerA receive msg: %s\n", msg)
 		if atomic.AddInt32(&countA, 1) == 10 {
@@ -41,7 +41,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 		}
 		return rocketmq.ConsumeSuccess
 	})
-	consumerB.Subscribe("broadcastTest", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumerB.Subscribe(BroadcastTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerB receive msg: %s", msg)
 		fmt.Printf("consumerB receive msg: %s\n", msg)
 		if atomic.AddInt32(&countB, 1) == 10 {
@@ -50,7 +50,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 		}
 		return rocketmq.ConsumeSuccess
 	})
-	consumerC.Subscribe("broadcastTest", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumerC.Subscribe(BroadcastTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerC receive msg: %s", msg)
 		fmt.Printf("consumerC receive msg: %s\n", msg)
 		if atomic.AddInt32(&countC, 1) == 10 {
@@ -92,7 +92,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		msg := fmt.Sprintf("test-%d", i)
-		res, err := producer.SendMessageSync(&rocketmq.Message{Topic: "broadcastTest", Body: msg})
+		res, err := producer.SendMessageSync(&rocketmq.Message{Topic: BroadcastTopic, Body: msg})
 		if err != nil {
 			t.Fatal(err.Error())
 		}

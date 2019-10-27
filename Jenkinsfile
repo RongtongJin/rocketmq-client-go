@@ -6,12 +6,13 @@ pipeline {
                 sh 'docker run -d --name rmqnamesrv rocketmqinc/rocketmq:4.5.0 sh mqnamesrv'
                 sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64/jre" rocketmqinc/rocketmq:4.5.0  sh mqbroker'
                 sh 'sleep 10'
-                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t broadcastTest'
-                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendAndReceive'
-                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t sendOnewayAndReceive'
-                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t rebalance'
-                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t tagTest'
-                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t transaction-message'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_normal_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_oneway_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_rebalance_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_broadcast_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_tag_filter_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_partition_order_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_transaction_test'
             }
         }
         stage('CentOS 6'){

@@ -22,7 +22,7 @@ func TestRocketMQRebalance(t *testing.T) {
 	}
 	defer producer.Shutdown()
 	for i := 0; i < 100; i++ {
-		res, err := producer.SendMessageSync(createMessage("rebalance", "rebalance"))
+		res, err := producer.SendMessageSync(createMessage(RebalanceTopic, "rebalance"))
 		if err != nil {
 			t.Fatal(err.Error())
 		}
@@ -43,7 +43,7 @@ func TestRocketMQRebalance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	consumerA.Subscribe("rebalance", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumerA.Subscribe(RebalanceTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerA receive msg: %s", msg)
 		receiveMap.Store(msg.MessageID, true)
 		if atomic.AddInt32(&count, 1) == 100 {
@@ -51,7 +51,7 @@ func TestRocketMQRebalance(t *testing.T) {
 		}
 		return rocketmq.ConsumeSuccess
 	})
-	consumerB.Subscribe("rebalance", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumerB.Subscribe(RebalanceTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerB receive msg: %s", msg)
 		receiveMap.Store(msg.MessageID, true)
 		if atomic.AddInt32(&count, 1) == 100 {
@@ -59,7 +59,7 @@ func TestRocketMQRebalance(t *testing.T) {
 		}
 		return rocketmq.ConsumeSuccess
 	})
-	consumerC.Subscribe("rebalance", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumerC.Subscribe(RebalanceTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerC receive msg: %s", msg)
 		receiveMap.Store(msg.MessageID, true)
 		if atomic.AddInt32(&count, 1) == 100 {

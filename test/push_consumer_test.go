@@ -74,7 +74,7 @@ func TestPushConsumerCreateLackModel(t *testing.T) {
 }
 
 // FIXME lack of ConsumerModel
-func TestPushConsumerCreate(t *testing.T) {
+func TestPushConsumerCreateLackConsumerModel(t *testing.T) {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			NameServer: "localhost:9876",

@@ -50,7 +50,7 @@ func TestTransactionMsg(t *testing.T) {
 	}
 	defer producer.Shutdown()
 
-	_, err = producer.SendMessageTransaction(&rocketmq.Message{Topic: "transaction-message", Body: "Transaction Message"}, context)
+	_, err = producer.SendMessageTransaction(&rocketmq.Message{Topic: TransactionTopic, Body: "Transaction Message"}, context)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -59,7 +59,7 @@ func TestTransactionMsg(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	consumer.Subscribe("transaction-message", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumer.Subscribe(TransactionTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		if msg.Body == "Transaction Message" {
 			flagC = true
