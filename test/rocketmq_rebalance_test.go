@@ -12,25 +12,37 @@ func TestRocketMQRebalance(t *testing.T) {
 	ch := make(chan interface{})
 	var count int32 = 0
 	var receiveMap sync.Map
-	producer := createRocketMQProducer()
-	err := producer.Start()
+	producer, err := createRocketMQProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
+	}
+	err = producer.Start()
+	if err != nil {
+		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
 	for i := 0; i < 100; i++ {
 		res, err := producer.SendMessageSync(createMessage("rebalance", "rebalance"))
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal(err.Error())
 		}
 		if res.Status == rocketmq.SendOK {
 			t.Logf("send msg success, res = %s", res)
 			receiveMap.Store(res.MsgId, false)
 		}
 	}
-	consumerA := createRocketMQPushConsumerByInstanceName("consumerA")
-	consumerB := createRocketMQPushConsumerByInstanceName("consumerB")
-	consumerC := createRocketMQPushConsumerByInstanceName("consumerC")
+	consumerA, err := createRocketMQPushConsumerByInstanceName("consumerA")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	consumerB, err := createRocketMQPushConsumerByInstanceName("consumerB")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	consumerC, err := createRocketMQPushConsumerByInstanceName("consumerC")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	consumerA.Subscribe("rebalance", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerA receive msg: %s", msg)
 		receiveMap.Store(msg.MessageID, true)
@@ -57,17 +69,17 @@ func TestRocketMQRebalance(t *testing.T) {
 	})
 	err = consumerA.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumerA.Shutdown()
 	err = consumerB.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumerB.Shutdown()
 	err = consumerC.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumerC.Shutdown()
 	select {

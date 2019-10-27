@@ -7,83 +7,68 @@ import (
 	"testing"
 )
 
-func TestProducerCreate(t *testing.T) {
-
-	// config is nil
-	{
-		_, err := rocketmq.NewProducer(nil)
-		if err == nil {
-			t.Fail()
-		} else {
-			assert.Equal(t, ConfigNilInfo, err.Error())
-		}
+func TestProducerCreateConfigNil(t *testing.T) {
+	_, err := rocketmq.NewProducer(nil)
+	if err == nil {
+		t.Fail()
+	} else {
+		assert.Equal(t, ConfigNilInfo, err.Error())
 	}
-
-	// lack of nameserver
-	{
-		pConfig := &rocketmq.ProducerConfig{
-			ClientConfig: rocketmq.ClientConfig{
-				GroupID: "123456",
-			},
-			//Set to Common Producer as default.
-			ProducerModel: rocketmq.CommonProducer,
-		}
-		_, err := rocketmq.NewProducer(pConfig)
-		if err == nil {
-			t.Fail()
-		} else {
-			assert.Equal(t, NameserverEmptyInfo, err.Error())
-		}
-	}
-
-	// lack of groupId
-	{
-		pConfig := &rocketmq.ProducerConfig{
-			ClientConfig: rocketmq.ClientConfig{
-				NameServer: "localhost:9876",
-			},
-			//Set to Common Producer as default.
-			ProducerModel: rocketmq.CommonProducer,
-		}
-		_, err := rocketmq.NewProducer(pConfig)
-		if err == nil {
-			t.Fail()
-		} else {
-			assert.Equal(t, GroupIdEmptyInfo, err.Error())
-		}
-	}
-
-	//FIXME
-	// lack of Producer Model
-	//{
-	//	pConfig := &rocketmq.ProducerConfig{
-	//		ClientConfig: rocketmq.ClientConfig{
-	//			NameServer: "localhost:9876",
-	//			GroupID:    "producer_group",
-	//		},
-	//	}
-	//
-	//	_, err := rocketmq.NewProducer(pConfig)
-	//	if err == nil {
-	//		t.Fail()
-	//	}
-	//}
 }
 
-func TestSendMessageBeforeStart(t *testing.T) {
-
+func TestProducerCreateLackNameServer(t *testing.T) {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
-			NameServer: "localhost:9876",
-			GroupID:    "producer_group",
+			GroupID: "123456",
 		},
 		//Set to Common Producer as default.
 		ProducerModel: rocketmq.CommonProducer,
 	}
+	_, err := rocketmq.NewProducer(pConfig)
+	if err == nil {
+		t.Fail()
+	} else {
+		assert.Equal(t, NameserverEmptyInfo, err.Error())
+	}
+}
 
-	producer, err := rocketmq.NewProducer(pConfig)
+func TestProducerCreateLackGroupId(t *testing.T) {
+	pConfig := &rocketmq.ProducerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: "localhost:9876",
+		},
+		//Set to Common Producer as default.
+		ProducerModel: rocketmq.CommonProducer,
+	}
+	_, err := rocketmq.NewProducer(pConfig)
+	if err == nil {
+		t.Fail()
+	} else {
+		assert.Equal(t, GroupIdEmptyInfo, err.Error())
+	}
+}
+
+func TestProducerCreateLackProducerModel(t *testing.T) {
+	//FIXME lack of Producer Model
+	{
+		pConfig := &rocketmq.ProducerConfig{
+			ClientConfig: rocketmq.ClientConfig{
+				NameServer: "localhost:9876",
+				GroupID:    "producer_group",
+			},
+		}
+
+		_, err := rocketmq.NewProducer(pConfig)
+		if err == nil {
+			t.Fail()
+		}
+	}
+}
+
+func TestSendMessageBeforeStart(t *testing.T) {
+	producer, err := createRocketMQProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	//send before start
 	if producer != nil {
@@ -97,19 +82,9 @@ func TestSendMessageBeforeStart(t *testing.T) {
 }
 
 func TestMessageEmpty(t *testing.T) {
-
-	pConfig := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			NameServer: "localhost:9876",
-			GroupID:    "producer_group",
-		},
-		//Set to Common Producer as default.
-		ProducerModel: rocketmq.CommonProducer,
-	}
-
-	producer, err := rocketmq.NewProducer(pConfig)
+	producer, err := createRocketMQProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	if producer != nil {
 		err = producer.Start()
@@ -126,19 +101,9 @@ func TestMessageEmpty(t *testing.T) {
 }
 
 func TestTopicEmpty(t *testing.T) {
-
-	pConfig := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			NameServer: "localhost:9876",
-			GroupID:    "producer_group",
-		},
-		//Set to Common Producer as default.
-		ProducerModel: rocketmq.CommonProducer,
-	}
-
-	producer, err := rocketmq.NewProducer(pConfig)
+	producer, err := createRocketMQProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	if producer != nil {
 		err = producer.Start()
@@ -155,18 +120,9 @@ func TestTopicEmpty(t *testing.T) {
 
 func TestOrderlyMessageKeyEmpty(t *testing.T) {
 
-	pConfig := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			NameServer: "localhost:9876",
-			GroupID:    "producer_group",
-		},
-		//Set to Common Producer as default.
-		ProducerModel: rocketmq.CommonProducer,
-	}
-
-	producer, err := rocketmq.NewProducer(pConfig)
+	producer, err := createRocketMQOrderlyProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	if producer != nil {
 		err = producer.Start()

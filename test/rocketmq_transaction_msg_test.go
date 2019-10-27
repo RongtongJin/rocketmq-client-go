@@ -34,34 +34,31 @@ func (l *MyTransactionLocalListener) Check(m *rocketmq.MessageExt, arg interface
 }
 
 func TestTransactionMsg(t *testing.T) {
-	config := &rocketmq.ProducerConfig{
-		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    "transcation_group",
-			NameServer: rocketmqNameserver,
-		},
-		ProducerModel: rocketmq.TransProducer,
-	}
+
 	listener := &MyTransactionLocalListener{}
 	context := &MyTransactionLocalContext{}
-	producer, err := rocketmq.NewTransactionProducer(config, listener, context)
+	producer, err := createRocketMQTransactionProducer(listener, context)
 
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 
 	err = producer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 		return
 	}
 	defer producer.Shutdown()
 
 	_, err = producer.SendMessageTransaction(&rocketmq.Message{Topic: "transaction-message", Body: "Transaction Message"}, context)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 
-	consumer := createRocketMQPushConsumer()
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	consumer.Subscribe("transaction-message", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		if msg.Body == "Transaction Message" {
@@ -72,7 +69,7 @@ func TestTransactionMsg(t *testing.T) {
 	})
 	err = consumer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumer.Shutdown()
 

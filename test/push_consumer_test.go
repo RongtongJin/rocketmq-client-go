@@ -6,136 +6,102 @@ import (
 	"testing"
 )
 
-//func TestConsumer(t *testing.T) {
-//	//lack of model
-//	{
-//		pConfig := &rocketmq.PushConsumerConfig{
-//			ClientConfig: rocketmq.ClientConfig{
-//				NameServer: "localhost:9876",
-//				GroupID:    "producer_group",
-//			},
-//			Model: rocketmq.Clustering,
-//			//ConsumerModel: rocketmq.CoCurrently,
-//		}
-//		producer, err := rocketmq.NewPushConsumer(pConfig)
-//		if err == nil {
-//			t.Fail()
-//		}
-//		if producer != nil {
-//			err = producer.Start()
-//			if err != nil {
-//				t.Error(err)
-//			}
-//		}
-//	}
-//}
+// config is nil
+func TestPushConsumerCreateConfigNil(t *testing.T) {
+	_, err := rocketmq.NewPushConsumer(nil)
+	if err == nil {
+		t.Fail()
+	} else {
+		assert.Equal(t, ConfigNilInfo, err.Error())
+	}
+}
 
+// lack of nameserver
+func TestPushConsumerCreateLackNameServer(t *testing.T) {
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID: "123456",
+		},
+		Model:         rocketmq.Clustering,
+		ConsumerModel: rocketmq.CoCurrently,
+	}
+	_, err := rocketmq.NewPushConsumer(pConfig)
+	if err == nil {
+		t.Fail()
+	} else {
+		assert.Equal(t, NameserverEmptyInfo, err.Error())
+	}
+}
+
+// lack groupId
+func TestPushConsumerLackGroupId(t *testing.T) {
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: "localhost:9876",
+		},
+		Model:         rocketmq.Clustering,
+		ConsumerModel: rocketmq.CoCurrently,
+	}
+	_, err := rocketmq.NewPushConsumer(pConfig)
+	if err == nil {
+		t.Fail()
+	} else {
+		assert.Equal(t, GroupIdEmptyInfo, err.Error())
+	}
+}
+
+// FIXME lack of model
+func TestPushConsumerCreateLackModel(t *testing.T) {
+
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: "localhost:9876",
+			GroupID:    "producer_group",
+		},
+		//Model:         rocketmq.Clustering,
+		ConsumerModel: rocketmq.CoCurrently,
+	}
+	producer, err := rocketmq.NewPushConsumer(pConfig)
+	if err == nil {
+		t.Fail()
+	}
+	if producer != nil {
+		err = producer.Start()
+		if err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+// FIXME lack of ConsumerModel
 func TestPushConsumerCreate(t *testing.T) {
-
-	// config is nil
-	{
-		_, err := rocketmq.NewPushConsumer(nil)
-		if err == nil {
-			t.Fail()
-		} else {
-			assert.Equal(t, ConfigNilInfo, err.Error())
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: "localhost:9876",
+			GroupID:    "producer_group",
+		},
+		Model: rocketmq.Clustering,
+		//ConsumerModel: rocketmq.CoCurrently,
+	}
+	producer, err := rocketmq.NewPushConsumer(pConfig)
+	if err == nil {
+		t.Fail()
+	}
+	if producer != nil {
+		err = producer.Start()
+		if err != nil {
+			t.Error(err.Error())
 		}
 	}
-
-	// lack of nameserver
-	{
-		pConfig := &rocketmq.PushConsumerConfig{
-			ClientConfig: rocketmq.ClientConfig{
-				GroupID: "123456",
-			},
-			Model:         rocketmq.Clustering,
-			ConsumerModel: rocketmq.CoCurrently,
-		}
-		_, err := rocketmq.NewPushConsumer(pConfig)
-		if err == nil {
-			t.Fail()
-		} else {
-			assert.Equal(t, NameserverEmptyInfo, err.Error())
-		}
-	}
-
-	// lack of groupId
-	{
-		pConfig := &rocketmq.PushConsumerConfig{
-			ClientConfig: rocketmq.ClientConfig{
-				NameServer: "localhost:9876",
-			},
-			Model:         rocketmq.Clustering,
-			ConsumerModel: rocketmq.CoCurrently,
-		}
-		_, err := rocketmq.NewPushConsumer(pConfig)
-		if err == nil {
-			t.Fail()
-		} else {
-			assert.Equal(t, GroupIdEmptyInfo, err.Error())
-		}
-	}
-
-	// FIXME
-	//lack of model
-	//{
-	//	pConfig := &rocketmq.PushConsumerConfig{
-	//		ClientConfig: rocketmq.ClientConfig{
-	//			NameServer: "localhost:9876",
-	//			GroupID:    "producer_group",
-	//		},
-	//		//Model:         rocketmq.Clustering,
-	//		ConsumerModel: rocketmq.CoCurrently,
-	//	}
-	//	producer, err := rocketmq.NewPushConsumer(pConfig)
-	//	if err == nil {
-	//		t.Fail()
-	//	}
-	//	if producer != nil {
-	//		err = producer.Start()
-	//		if err != nil {
-	//			t.Error(err)
-	//		}
-	//	}
-	//}
-
-	// FIXME
-	// lack of consumer model
-	//{
-	//	pConfig := &rocketmq.PushConsumerConfig{
-	//		ClientConfig: rocketmq.ClientConfig{
-	//			NameServer: "localhost:9876",
-	//			GroupID:    "producer_group",
-	//		},
-	//		Model: rocketmq.Clustering,
-	//		//ConsumerModel: rocketmq.CoCurrently,
-	//	}
-	//	producer, err := rocketmq.NewPushConsumer(pConfig)
-	//	if err == nil {
-	//		t.Fail()
-	//	}
-	//	if producer != nil {
-	//		err = producer.Start()
-	//		if err != nil {
-	//			t.Error(err)
-	//		}
-	//	}
-	//}
 }
 
 //FIXME
-func TestConsumerSubscribe(t *testing.T) {
-	consumer := createRocketMQPushConsumer()
-	//err := consumer.Subscribe("", "", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
-	//	return rocketmq.ConsumeSuccess
-	//})
-	//if err == nil {
-	//	t.Fail()
-	//} else {
-	//	t.Logf("err is %s", err)
-	//}
-
-	err := consumer.Subscribe("test", "*", nil)
+func TestConsumerSubscribeFuncNil(t *testing.T) {
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	err = consumer.Subscribe("test", "*", nil)
 	if err == nil {
 		t.Fail()
 	} else {
@@ -147,8 +113,11 @@ func TestConsumerSubscribe(t *testing.T) {
 }
 
 func TestConsumerStartBeforeSubscribe(t *testing.T) {
-	consumer := createRocketMQPushConsumer()
-	err := consumer.Start()
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	err = consumer.Start()
 	defer consumer.Shutdown()
 	if err == nil {
 		t.Fail()

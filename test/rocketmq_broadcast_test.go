@@ -19,9 +19,18 @@ func TestRocketMQBroadcast(t *testing.T) {
 	var countB int32 = 0
 	var countC int32 = 0
 
-	consumerA := createRocketMQBroadcastConsumerByInstanceName("consumerA")
-	consumerB := createRocketMQBroadcastConsumerByInstanceName("consumerB")
-	consumerC := createRocketMQBroadcastConsumerByInstanceName("consumerC")
+	consumerA, err := createRocketMQBroadcastConsumerByInstanceName("consumerA")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	consumerB, err := createRocketMQBroadcastConsumerByInstanceName("consumerB")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	consumerC, err := createRocketMQBroadcastConsumerByInstanceName("consumerC")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 
 	consumerA.Subscribe("broadcastTest", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Logf("consumerA receive msg: %s", msg)
@@ -51,28 +60,33 @@ func TestRocketMQBroadcast(t *testing.T) {
 		return rocketmq.ConsumeSuccess
 	})
 
-	err := consumerA.Start()
+	err = consumerA.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumerA.Shutdown()
 
 	err = consumerB.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumerB.Shutdown()
 
 	err = consumerC.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumerC.Shutdown()
 
-	producer := createRocketMQProducer()
+	producer, err := createRocketMQProducer()
+
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
 	err = producer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
 
@@ -80,7 +94,7 @@ func TestRocketMQBroadcast(t *testing.T) {
 		msg := fmt.Sprintf("test-%d", i)
 		res, err := producer.SendMessageSync(&rocketmq.Message{Topic: "broadcastTest", Body: msg})
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal(err.Error())
 		}
 		if res.Status == rocketmq.SendOK {
 			t.Logf("send msg success, res = %s", res)

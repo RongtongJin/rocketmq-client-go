@@ -9,15 +9,18 @@ import (
 func TestRocketMQTagFilter(t *testing.T) {
 	flag := false
 	ch := make(chan interface{})
-	producer := createRocketMQProducer()
-	err := producer.Start()
+	producer, err := createRocketMQProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
+	}
+	err = producer.Start()
+	if err != nil {
+		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
 	res, err := producer.SendMessageSync(createTagMessage("tagTest", TagC, TagC))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 
 	if res.Status != rocketmq.SendOK {
@@ -26,12 +29,15 @@ func TestRocketMQTagFilter(t *testing.T) {
 
 	res, err = producer.SendMessageSync(createTagMessage("tagTest", TagA, TagA))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	if res.Status != rocketmq.SendOK {
 		t.Fatalf("send message fail")
 	}
-	consumer := createRocketMQPushConsumer()
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	consumer.Subscribe("tagTest", TagA, func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		flag = false
@@ -46,7 +52,7 @@ func TestRocketMQTagFilter(t *testing.T) {
 	})
 	err = consumer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumer.Shutdown()
 	select {

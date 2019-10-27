@@ -10,8 +10,11 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	flag := false
 	ch := make(chan interface{})
 	msgId := ""
-	producer := createRocketMQProducer()
-	err := producer.Start()
+	producer, err := createRocketMQProducer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	err = producer.Start()
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -25,7 +28,10 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 	} else {
 		msgId = res.MsgId
 	}
-	consumer := createRocketMQPushConsumer()
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	consumer.Subscribe("sendAndReceive", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		if msg.MessageID == msgId {
@@ -51,17 +57,23 @@ func TestRocketMQSendSyncAndReceive(t *testing.T) {
 func TestRocketMQSendOnewayAndReceive(t *testing.T) {
 	flag := false
 	ch := make(chan interface{})
-	producer := createRocketMQProducer()
-	err := producer.Start()
+	producer, err := createRocketMQProducer()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
+	}
+	err = producer.Start()
+	if err != nil {
+		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
 	err = producer.SendMessageOneway(createMessage("sendOnewayAndReceive", "sendOnewayAndReceive"))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
-	consumer := createRocketMQPushConsumer()
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 	consumer.Subscribe("sendOnewayAndReceive", "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		if msg.Body == "sendOnewayAndReceive" {
@@ -72,7 +84,7 @@ func TestRocketMQSendOnewayAndReceive(t *testing.T) {
 	})
 	err = consumer.Start()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err.Error())
 	}
 	defer consumer.Shutdown()
 

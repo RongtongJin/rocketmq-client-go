@@ -37,7 +37,7 @@ func createTagMessage(topic, body, tag string) *rocketmq.Message {
 	return &rocketmq.Message{Topic: topic, Body: msg, Tags: tag}
 }
 
-func createRocketMQProducer() rocketmq.Producer {
+func createRocketMQProducer() (rocketmq.Producer, error) {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			NameServer: rocketmqNameserver,
@@ -47,11 +47,25 @@ func createRocketMQProducer() rocketmq.Producer {
 		ProducerModel: rocketmq.CommonProducer,
 	}
 
-	producer, _ := rocketmq.NewProducer(pConfig)
-	return producer
+	producer, err := rocketmq.NewProducer(pConfig)
+	return producer, err
 }
 
-func createRocketMQPushConsumer() rocketmq.PushConsumer {
+func createRocketMQOrderlyProducer() (rocketmq.Producer, error) {
+	pConfig := &rocketmq.ProducerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: rocketmqNameserver,
+			GroupID:    "producer_group",
+		},
+		//Set to Common Producer as default.
+		ProducerModel: rocketmq.OrderlyProducer,
+	}
+
+	producer, err := rocketmq.NewProducer(pConfig)
+	return producer, err
+}
+
+func createRocketMQPushConsumer() (rocketmq.PushConsumer, error) {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			GroupID:    "consumerGroup",
@@ -60,11 +74,22 @@ func createRocketMQPushConsumer() rocketmq.PushConsumer {
 		Model:         rocketmq.Clustering,
 		ConsumerModel: rocketmq.CoCurrently,
 	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
+	consumer, err := rocketmq.NewPushConsumer(pConfig)
+	return consumer, err
 }
 
-func createRocketMQBroadcastConsumerByInstanceName(instanceName string) rocketmq.PushConsumer {
+func createRocketMQPullConsumer() (rocketmq.PullConsumer, error) {
+	pConfig := &rocketmq.PullConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID:    "consumerGroup",
+			NameServer: "localhost:9876",
+		},
+	}
+	consumer, err := rocketmq.NewPullConsumer(pConfig)
+	return consumer, err
+}
+
+func createRocketMQBroadcastConsumerByInstanceName(instanceName string) (rocketmq.PushConsumer, error) {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			GroupID:      "consumerGroup",
@@ -74,11 +99,11 @@ func createRocketMQBroadcastConsumerByInstanceName(instanceName string) rocketmq
 		Model:         rocketmq.BroadCasting,
 		ConsumerModel: rocketmq.CoCurrently,
 	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
+	consumer, err := rocketmq.NewPushConsumer(pConfig)
+	return consumer, err
 }
 
-func createRocketMQPushConsumerByInstanceName(instanceName string) rocketmq.PushConsumer {
+func createRocketMQPushConsumerByInstanceName(instanceName string) (rocketmq.PushConsumer, error) {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			GroupID:      "consumerGroup",
@@ -88,8 +113,20 @@ func createRocketMQPushConsumerByInstanceName(instanceName string) rocketmq.Push
 		Model:         rocketmq.Clustering,
 		ConsumerModel: rocketmq.CoCurrently,
 	}
-	consumer, _ := rocketmq.NewPushConsumer(pConfig)
-	return consumer
+	consumer, err := rocketmq.NewPushConsumer(pConfig)
+	return consumer, err
+}
+
+func createRocketMQTransactionProducer(listener rocketmq.TransactionLocalListener, arg interface{}) (rocketmq.TransactionProducer, error) {
+	config := &rocketmq.ProducerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			GroupID:    "transcation_group",
+			NameServer: rocketmqNameserver,
+		},
+		ProducerModel: rocketmq.TransProducer,
+	}
+	producer, err := rocketmq.NewTransactionProducer(config, listener, arg)
+	return producer, err
 }
 
 func checkMap(receiveMap sync.Map) bool {
