@@ -174,7 +174,7 @@ func TestTransactionMsgUnkonwThenCommit(t *testing.T) {
 	defer consumer.Shutdown()
 
 	select {
-	case <-time.After(time.Second * 60):
+	case <-time.After(time.Second * 80):
 	case <-ch:
 	}
 	if flagA && flagB && flagC {
@@ -225,7 +225,7 @@ func TestTransactionMsgUnkonwThenRollback(t *testing.T) {
 	defer consumer.Shutdown()
 
 	select {
-	case <-time.After(time.Second * 60):
+	case <-time.After(time.Second * 80):
 	case <-ch:
 	}
 	if flagF && flagG && !flagH {
