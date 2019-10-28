@@ -7,7 +7,7 @@ import (
 )
 
 func TestRocketMQTagFilterNotMatch(t *testing.T) {
-	flagA, flagC := false, false
+	flagA, flagB := false, false
 	ch := make(chan interface{})
 	producer, err := createRocketMQProducer()
 	if err != nil {
@@ -18,7 +18,7 @@ func TestRocketMQTagFilterNotMatch(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	res, err := producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagC", "TagC"))
+	res, err := producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagA", "TagA"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -30,12 +30,12 @@ func TestRocketMQTagFilterNotMatch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	consumer.Subscribe(TagFilterTopic, "TagA", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumer.Subscribe(TagFilterTopic, "TagB", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		if msg.Body == "TagA" {
 			flagA = true
-		} else if msg.Body == "TagC" {
-			flagC = true
+		} else if msg.Body == "TagB" {
+			flagB = true
 		}
 		return rocketmq.ConsumeSuccess
 	})
@@ -48,7 +48,7 @@ func TestRocketMQTagFilterNotMatch(t *testing.T) {
 	case <-time.After(time.Second * 10):
 	case <-ch:
 	}
-	if flagC == false && flagA == false {
+	if flagA == false && flagB == false {
 		t.Logf("tag filter test success")
 	} else {
 		t.Errorf("tag filter test fail")
@@ -56,7 +56,7 @@ func TestRocketMQTagFilterNotMatch(t *testing.T) {
 }
 
 func TestRocketMQTagFilterAll(t *testing.T) {
-	flagA, flagC := false, false
+	flagC, flagD := false, false
 	ch := make(chan interface{})
 	producer, err := createRocketMQProducer()
 	if err != nil {
@@ -76,7 +76,7 @@ func TestRocketMQTagFilterAll(t *testing.T) {
 		t.Fatalf("send message fail")
 	}
 
-	res, err = producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagA", "TagA"))
+	res, err = producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagD", "TagD"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -89,10 +89,10 @@ func TestRocketMQTagFilterAll(t *testing.T) {
 	}
 	consumer.Subscribe(TagFilterTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
-		if msg.Body == "TagA" {
-			flagA = true
-		} else if msg.Body == "TagC" {
+		if msg.Body == "TagC" {
 			flagC = true
+		} else if msg.Body == "TagD" {
+			flagD = true
 		}
 		return rocketmq.ConsumeSuccess
 	})
@@ -105,15 +105,15 @@ func TestRocketMQTagFilterAll(t *testing.T) {
 	case <-time.After(time.Second * 10):
 	case <-ch:
 	}
-	if flagC == true && flagA == true {
+	if flagC == true && flagD == true {
 		t.Logf("tag filter test success")
 	} else {
 		t.Errorf("tag filter test fail")
 	}
 }
 
-func TestRocketMQTagFilter(t *testing.T) {
-	flagA, flagB, flagC := false, false, false
+func TestRocketMQTagFilterWithOr(t *testing.T) {
+	flagE, flagF, flagG := false, false, false
 	ch := make(chan interface{})
 	producer, err := createRocketMQProducer()
 	if err != nil {
@@ -124,7 +124,7 @@ func TestRocketMQTagFilter(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	res, err := producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagC", "TagC"))
+	res, err := producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagE", "TagE"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -133,7 +133,7 @@ func TestRocketMQTagFilter(t *testing.T) {
 		t.Fatalf("send message fail")
 	}
 
-	res, err = producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagA", "TagA"))
+	res, err = producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagF", "TagF"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -144,14 +144,14 @@ func TestRocketMQTagFilter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	consumer.Subscribe(TagFilterTopic, "TagB||TagC", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumer.Subscribe(TagFilterTopic, "TagE||TagG", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
-		if msg.Body == "TagA" {
-			flagA = true
-		} else if msg.Body == "TagB" {
-			flagB = true
-		} else if msg.Body == "TagC" {
-			flagC = true
+		if msg.Body == "TagE" {
+			flagE = true
+		} else if msg.Body == "TagF" {
+			flagF = true
+		} else if msg.Body == "TagG" {
+			flagG = true
 		}
 		return rocketmq.ConsumeSuccess
 	})
@@ -164,7 +164,7 @@ func TestRocketMQTagFilter(t *testing.T) {
 	case <-time.After(time.Second * 10):
 	case <-ch:
 	}
-	if flagC == true && flagB == false && flagA == false {
+	if flagE == true && flagF == false && flagG == false {
 		t.Logf("tag filter test success")
 	} else {
 		t.Errorf("tag filter test fail")
@@ -183,7 +183,7 @@ func TestRocketMQTagFilterTwice(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	res, err := producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagC", "TagC"))
+	res, err := producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagH", "TagH"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -192,7 +192,7 @@ func TestRocketMQTagFilterTwice(t *testing.T) {
 		t.Fatalf("send message fail")
 	}
 
-	res, err = producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagA", "TagA"))
+	res, err = producer.SendMessageSync(createTagMessage(TagFilterTopic, "TagI", "TagI"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -203,13 +203,13 @@ func TestRocketMQTagFilterTwice(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	consumer.Subscribe(TagFilterTopic, "TagA", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumer.Subscribe(TagFilterTopic, "TagH", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		flag = false
 		ch <- "done"
 		return rocketmq.ConsumeSuccess
 	})
-	consumer.Subscribe(TagFilterTopic, "TagC", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumer.Subscribe(TagFilterTopic, "TagI", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		flag = true
 		ch <- "done"
