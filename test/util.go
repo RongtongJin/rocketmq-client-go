@@ -23,9 +23,6 @@ const (
 	GroupIdEmptyInfo    = "GroupId is empty"
 	NameserverEmptyInfo = "NameServer and NameServerDomain is empty"
 	ConsumeFuncNil      = "consumeFunc is nil"
-	//tag
-	TagA = "tagA"
-	TagC = "tagC"
 )
 
 var rocketmqNameserver string

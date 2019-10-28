@@ -95,7 +95,6 @@ func TestPushConsumerCreateLackConsumerModel(t *testing.T) {
 	}
 }
 
-//FIXME
 func TestConsumerSubscribeFuncNil(t *testing.T) {
 	consumer, err := createRocketMQPushConsumer()
 	if err != nil {
