@@ -53,6 +53,6 @@ func TestDelayMessage(t *testing.T) {
 	case <-ch:
 	}
 	if !flag {
-		t.Errorf("send sync and receive test fail")
+		t.Errorf("delay msg test fail")
 	}
 }

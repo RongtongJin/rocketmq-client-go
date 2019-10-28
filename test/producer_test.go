@@ -44,7 +44,7 @@ func TestProducerCreateLackGroupId(t *testing.T) {
 	if err == nil {
 		t.Fail()
 	} else {
-		assert.Equal(t, GroupIdEmptyInfo, err.Error())
+		assert.Equal(t, GroupIDEmptyInfo, err.Error())
 	}
 }
 

@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	//topic info
 	NormalTopic         = "go_normal_test"
 	OneWayTopic         = "go_oneway_test"
 	RebalanceTopic      = "go_rebalance_test"
@@ -21,9 +20,8 @@ const (
 	DelayTopic          = "go_delay_test"
 	TransactionTopic    = "go_transaction_test"
 	TooLongTopic        = "go_too_long_test"
-	//error info
 	ConfigNilInfo       = "config is nil"
-	GroupIdEmptyInfo    = "GroupId is empty"
+	GroupIDEmptyInfo    = "GroupId is empty"
 	NameserverEmptyInfo = "NameServer and NameServerDomain is empty"
 	ConsumeFuncNil      = "consumeFunc is nil"
 )
@@ -200,7 +198,7 @@ func checkMap(receiveMap sync.Map) bool {
 	return flag
 }
 
-func GetRandomString(l int) string {
+func getRandomString(l int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyz"
 	bytes := []byte(str)
 	result := []byte{}

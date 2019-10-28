@@ -9,7 +9,7 @@ import (
 func TestSend4MbMsg(t *testing.T) {
 	flag := false
 	ch := make(chan interface{})
-	msgId := ""
+	msgID := ""
 	producer, err := createRocketMQProducer()
 	if err != nil {
 		t.Fatal(err.Error())
@@ -19,21 +19,21 @@ func TestSend4MbMsg(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	res, err := producer.SendMessageSync(createMessage(TooLongTopic, GetRandomString(4*1024*1024)))
+	res, err := producer.SendMessageSync(createMessage(TooLongTopic, getRandomString(4*1024*1024)))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 	if res.Status != rocketmq.SendOK {
 		t.Fatalf("send message fail")
 	} else {
-		msgId = res.MsgId
+		msgID = res.MsgId
 	}
 	consumer, err := createRocketMQPushConsumer()
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 	consumer.Subscribe(TooLongTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
-		if msg.MessageID == msgId {
+		if msg.MessageID == msgID {
 			flag = true
 		}
 		ch <- "done"
@@ -63,7 +63,7 @@ func TestSend4MbPlusMsg(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	_, err = producer.SendMessageSync(createMessage(TooLongTopic, GetRandomString(4*1024*1024+1)))
+	_, err = producer.SendMessageSync(createMessage(TooLongTopic, getRandomString(4*1024*1024+1)))
 	if err == nil {
 		t.Errorf("send 4mb plus test fail")
 	}

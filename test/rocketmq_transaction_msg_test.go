@@ -225,7 +225,7 @@ func TestTransactionMsgUnkonwThenRollback(t *testing.T) {
 	defer consumer.Shutdown()
 
 	select {
-	case <-time.After(time.Second * 50):
+	case <-time.After(time.Second * 60):
 	case <-ch:
 	}
 	if flagF && flagG && !flagH {
