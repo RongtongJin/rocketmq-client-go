@@ -20,6 +20,7 @@ const (
 	DelayTopic          = "go_delay_test"
 	TransactionTopic    = "go_transaction_test"
 	TooLongTopic        = "go_too_long_test"
+	ChineseTopic        = "go_chinese_test"
 	ConfigNilInfo       = "config is nil"
 	GroupIDEmptyInfo    = "GroupId is empty"
 	NameserverEmptyInfo = "NameServer and NameServerDomain is empty"

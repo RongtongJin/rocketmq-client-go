@@ -66,7 +66,7 @@ func TestRocketMQSendAndReceiveChinese(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	res, err := producer.SendMessageSync(createMessage(NormalTopic, "中文"))
+	res, err := producer.SendMessageSync(createMessage(ChineseTopic, "中文"))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -77,7 +77,7 @@ func TestRocketMQSendAndReceiveChinese(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	consumer.Subscribe(NormalTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+	consumer.Subscribe(ChineseTopic, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
 		t.Log(msg.Body)
 		if msg.Body == "中文" {
 			flag = true
