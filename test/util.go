@@ -3,8 +3,10 @@ package test
 import (
 	"fmt"
 	rocketmq "github.com/apache/rocketmq-client-go/core"
+	"math/rand"
 	"os"
 	"sync"
+	"time"
 )
 
 const (
@@ -18,6 +20,7 @@ const (
 	GlobalOrderTopic    = "go_global_order_test"
 	DelayTopic          = "go_delay_test"
 	TransactionTopic    = "go_transaction_test"
+	TooLongTopic        = "go_too_long_test"
 	//error info
 	ConfigNilInfo       = "config is nil"
 	GroupIdEmptyInfo    = "GroupId is empty"
@@ -48,7 +51,7 @@ func createRocketMQProducer() (rocketmq.Producer, error) {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
 			NameServer: rocketmqNameserver,
-			GroupID:    "producer_group",
+			GroupID:    "test_producer_group",
 		},
 		//Set to Common Producer as default.
 		ProducerModel: rocketmq.CommonProducer,
@@ -75,7 +78,7 @@ func createRocketMQOrderlyProducer() (rocketmq.Producer, error) {
 func createRocketMQPushConsumer() (rocketmq.PushConsumer, error) {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
-			GroupID:    "consumerGroup",
+			GroupID:    "test_consumer_group",
 			NameServer: rocketmqNameserver,
 		},
 		Model:         rocketmq.Clustering,
@@ -195,4 +198,15 @@ func checkMap(receiveMap sync.Map) bool {
 		return true
 	})
 	return flag
+}
+
+func GetRandomString(l int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyz"
+	bytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
 }
