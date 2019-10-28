@@ -20,7 +20,7 @@ func TestPushConsumerCreateConfigNil(t *testing.T) {
 func TestPushConsumerCreateLackNameServer(t *testing.T) {
 	pConfig := &rocketmq.PushConsumerConfig{
 		ClientConfig: rocketmq.ClientConfig{
-			GroupID: "123456",
+			GroupID: "consumer_group",
 		},
 		Model:         rocketmq.Clustering,
 		ConsumerModel: rocketmq.CoCurrently,
@@ -47,6 +47,22 @@ func TestPushConsumerLackGroupId(t *testing.T) {
 		t.Fail()
 	} else {
 		assert.Equal(t, GroupIDEmptyInfo, err.Error())
+	}
+}
+
+// lack instance name
+func TestPushConsumerLackInstanceName(t *testing.T) {
+	pConfig := &rocketmq.PushConsumerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: "localhost:9876",
+			GroupID:    "consumer_group",
+		},
+		Model:         rocketmq.Clustering,
+		ConsumerModel: rocketmq.CoCurrently,
+	}
+	_, err := rocketmq.NewPushConsumer(pConfig)
+	if err != nil {
+		t.Fail()
 	}
 }
 
@@ -106,9 +122,6 @@ func TestConsumerSubscribeFuncNil(t *testing.T) {
 	} else {
 		assert.Equal(t, ConsumeFuncNil, err.Error())
 	}
-
-	_ = consumer.Start()
-	defer consumer.Shutdown()
 }
 
 func TestConsumerStartBeforeSubscribe(t *testing.T) {

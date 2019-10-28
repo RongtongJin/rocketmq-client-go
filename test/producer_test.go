@@ -19,7 +19,7 @@ func TestProducerCreateConfigNil(t *testing.T) {
 func TestProducerCreateLackNameServer(t *testing.T) {
 	pConfig := &rocketmq.ProducerConfig{
 		ClientConfig: rocketmq.ClientConfig{
-			GroupID: "123456",
+			GroupID: "groupId",
 		},
 		//Set to Common Producer as default.
 		ProducerModel: rocketmq.CommonProducer,
@@ -45,6 +45,21 @@ func TestProducerCreateLackGroupId(t *testing.T) {
 		t.Fail()
 	} else {
 		assert.Equal(t, GroupIDEmptyInfo, err.Error())
+	}
+}
+
+func TestProducerCreateLackInstanceName(t *testing.T) {
+	pConfig := &rocketmq.ProducerConfig{
+		ClientConfig: rocketmq.ClientConfig{
+			NameServer: "localhost:9876",
+			GroupID:    "groupId",
+		},
+		//Set to Common Producer as default.
+		ProducerModel: rocketmq.CommonProducer,
+	}
+	_, err := rocketmq.NewProducer(pConfig)
+	if err != nil {
+		t.Fail()
 	}
 }
 
