@@ -88,6 +88,7 @@ func newDefaultProducer(config *ProducerConfig) (*defaultProducer, error) {
 	} else if config.ProducerModel == CommonProducer {
 		cproduer = C.CreateProducer(cs)
 	} else {
+		C.free(unsafe.Pointer(cs))
 		return nil, errors.New("ProducerModel is invalid or empty")
 	}
 	C.free(unsafe.Pointer(cs))
