@@ -41,18 +41,18 @@ func main() {
 	sendTransactionMessage(pConfig)
 }
 
-type MyTransactionLocalListener struct {
+type myTransactionLocalListener struct {
 }
 
-func (l *MyTransactionLocalListener) Execute(m *rocketmq.Message, arg interface{}) rocketmq.TransactionStatus {
+func (l *myTransactionLocalListener) Execute(m *rocketmq.Message, arg interface{}) rocketmq.TransactionStatus {
 	return rocketmq.UnknownTransaction
 }
-func (l *MyTransactionLocalListener) Check(m *rocketmq.MessageExt, arg interface{}) rocketmq.TransactionStatus {
+func (l *myTransactionLocalListener) Check(m *rocketmq.MessageExt, arg interface{}) rocketmq.TransactionStatus {
 	return rocketmq.CommitTransaction
 }
 func sendTransactionMessage(config *rocketmq.ProducerConfig) {
-	listener := &MyTransactionLocalListener{}
-	producer, err := rocketmq.NewTransactionProducer(config, listener, listener)
+	listener := &myTransactionLocalListener{}
+	producer, err := rocketmq.NewTransactionProducer(config, listener, nil)
 
 	if err != nil {
 		fmt.Println("create Transaction producer failed, error:", err)
