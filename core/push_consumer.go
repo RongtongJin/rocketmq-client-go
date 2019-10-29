@@ -197,9 +197,9 @@ func newPushConsumer(config *PushConsumerConfig) (PushConsumer, error) {
 	}
 
 	if config.ConsumerModel == Orderly {
-		err = rmqError(C.SetPushConsumerMessageModel(cconsumer, C.BROADCASTING))
+		err = rmqError(C.RegisterMessageCallbackOrderly(cconsumer, (C.MessageCallBack)(unsafe.Pointer(C.callback_cgo))))
 	} else if config.ConsumerModel == CoCurrently {
-		err = rmqError(C.SetPushConsumerMessageModel(cconsumer, C.CLUSTERING))
+		err = rmqError(C.RegisterMessageCallback(cconsumer, (C.MessageCallBack)(unsafe.Pointer(C.callback_cgo))))
 	} else {
 		return nil, errors.New("consumer model is invalid or empty")
 	}
