@@ -19,7 +19,7 @@ func TestSend4MbMsg(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	defer producer.Shutdown()
-	res, err := producer.SendMessageSync(createMessage(TooLongTopic, getRandomString(1024*1024)))
+	res, err := producer.SendMessageSync(createMessage(TooLongTopic, getRandomString(1024)))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
