@@ -141,3 +141,58 @@ func TestRocketMQSendOnewayAndReceive(t *testing.T) {
 		t.Errorf("send sync and receive test fail")
 	}
 }
+
+func TestSubscribeMultiTopic(t *testing.T) {
+	flagA, flagB := false, false
+	ch := make(chan interface{})
+	producer, err := createRocketMQProducer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	err = producer.Start()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer producer.Shutdown()
+	_, err = producer.SendMessageSync(createMessage(MutilTopic1, "MutilTopic1"))
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	_, err = producer.SendMessageSync(createMessage(MutilTopic2, "MutilTopic2"))
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	consumer.Subscribe(MutilTopic1, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+		t.Log(msg.Body)
+		if msg.Body == "MutilTopic1" {
+			flagA = true
+		}
+		return rocketmq.ConsumeSuccess
+	})
+	consumer.Subscribe(MutilTopic2, "*", func(msg *rocketmq.MessageExt) rocketmq.ConsumeStatus {
+		t.Log(msg.Body)
+		if msg.Body == "MutilTopic2" {
+			flagB = true
+		}
+		return rocketmq.ConsumeSuccess
+	})
+	err = consumer.Start()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer consumer.Shutdown()
+
+	select {
+	case <-time.After(time.Second * 10):
+	case <-ch:
+	}
+	if flagA && flagB {
+		t.Logf("subscribe mutil topic test pass")
+	} else {
+		t.Errorf("subscribe mutil topic test fail")
+	}
+}

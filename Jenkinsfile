@@ -15,6 +15,9 @@ pipeline {
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_transaction_test'
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_too_long_test'
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_delay_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_chinese_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_mutil_topic1_test'
+                sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_mutil_topic2_test'
             }
         }
         stage('CentOS 6'){

@@ -21,6 +21,8 @@ const (
 	TransactionTopic    = "go_transaction_test"
 	TooLongTopic        = "go_too_long_test"
 	ChineseTopic        = "go_chinese_test"
+	MutilTopic1         = "go_mutil_topic1_test"
+	MutilTopic2         = "go_mutil_topic2_test"
 	ConfigNilInfo       = "config is nil"
 	GroupIDEmptyInfo    = "GroupId is empty"
 	NameserverEmptyInfo = "NameServer and NameServerDomain is empty"
