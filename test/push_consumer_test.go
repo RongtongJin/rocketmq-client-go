@@ -122,16 +122,16 @@ func TestConsumerSubscribeFuncNil(t *testing.T) {
 	}
 }
 
-//func TestConsumerStartBeforeSubscribe(t *testing.T) {
-//	consumer, err := createRocketMQPushConsumer()
-//	if err != nil {
-//		t.Fatal(err.Error())
-//	}
-//	err = consumer.Start()
-//	defer consumer.Shutdown()
-//	if err == nil {
-//		t.Fail()
-//	} else {
-//		t.Log(err)
-//	}
-//}
+func TestConsumerStartBeforeSubscribe(t *testing.T) {
+	consumer, err := createRocketMQPushConsumer()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	err = consumer.Start()
+	//defer consumer.Shutdown()
+	if err == nil {
+		t.Fail()
+	} else {
+		t.Log(err)
+	}
+}
