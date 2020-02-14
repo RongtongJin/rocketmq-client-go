@@ -3,8 +3,8 @@ pipeline {
     stages {
         stage('rocketmq cluster start'){
             steps {
-                sh 'docker run -d --name rmqnamesrv apacherocketmq/rocketmq:4.5.0 sh mqnamesrv'
-                sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64/jre" apacherocketmq/rocketmq:4.5.0  sh mqbroker'
+                sh 'docker run -d --name rmqnamesrv apacherocketmq/rocketmq sh mqnamesrv'
+                sh 'docker run -d --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.232.b09-0.el7_7.x86_64/jre" apacherocketmq/rocketmq  sh mqbroker'
                 sh 'sleep 10'
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_normal_test'
                 sh 'docker exec rmqbroker sh ./mqadmin updateTopic -n namesrv:9876 -b localhost:10911 -t go_oneway_test'
