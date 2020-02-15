@@ -28,7 +28,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./core ./test -cover -coverpkg ./core| tee tmp'
+                sh 'go test -v ./core ./test | tee tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
             }
@@ -41,7 +41,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./core ./test -cover | tee tmp'
+                sh 'go test -v ./core ./test | tee tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
             }
@@ -54,7 +54,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./core ./test -cover | tee tmp'
+                sh 'go test -v ./core ./test | tee tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
             }
@@ -67,7 +67,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'go test -v ./core ./test -cover | tee tmp'
+                sh 'go test -v ./core ./test | tee tmp'
                 sh '$GOPATH/bin/go-junit-report < tmp > test_output.xml'
                 junit '*.xml'
             }
